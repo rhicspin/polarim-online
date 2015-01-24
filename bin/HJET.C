@@ -13,31 +13,76 @@
 #include <TGraph.h>
 #include "HJET.h"
 
-const GeometryStruct Geom[MAXSICHAN] = {
-//    int idet;		// physical detector number
-//    int by;		// blue=0 / yellow=1 
-//    int io;		// inner=0 / outer=1
-//    float z;		// distance along the beam, cm
-//	I assume here pitch = 3.75 mm and distance from the flange center to the 1st strip 11.25 mm
-    {0, 1, 0, 5.250}, {0, 1, 0, 4.875}, {0, 1, 0, 4.500}, {0, 1, 0, 4.125}, {0, 1, 0, 3.750}, {0, 1, 0, 3.375},		// Ch 1  - 6
-    {0, 1, 0, 3.000}, {0, 1, 0, 2.625}, {0, 1, 0, 2.250}, {0, 1, 0, 1.875}, {0, 1, 0, 1.500}, {0, 1, 0, 1.125},		// Ch 7  - 12
-    {1, 1, 0, 1.125}, {1, 1, 0, 1.500}, {1, 1, 0, 1.875}, {1, 1, 0, 2.250}, {1, 1, 0, 2.625}, {1, 1, 0, 3.000},		// Ch 13 - 18
-    {1, 1, 0, 3.375}, {1, 1, 0, 3.750}, {1, 1, 0, 4.125}, {1, 1, 0, 4.500}, {1, 1, 0, 4.875}, {1, 1, 0, 5.250},		// Ch 19 - 24
-    {2, 0, 0, 5.250}, {2, 0, 0, 4.875}, {2, 0, 0, 4.500}, {2, 0, 0, 4.125}, {2, 0, 0, 3.750}, {2, 0, 0, 3.375},		// Ch 25 - 30
-    {2, 0, 0, 3.000}, {2, 0, 0, 2.625}, {2, 0, 0, 2.250}, {2, 0, 0, 1.875}, {2, 0, 0, 1.500}, {2, 0, 0, 1.125},		// Ch 31 - 36
-    {3, 0, 0, 1.125}, {3, 0, 0, 1.500}, {3, 0, 0, 1.875}, {3, 0, 0, 2.250}, {3, 0, 0, 2.625}, {3, 0, 0, 3.000},		// Ch 37 - 42
-    {3, 0, 0, 3.375}, {3, 0, 0, 3.750}, {3, 0, 0, 4.125}, {3, 0, 0, 4.500}, {3, 0, 0, 4.875}, {3, 0, 0, 5.250},		// Ch 43 - 48
-    {4, 1, 1, 5.250}, {4, 1, 1, 4.875}, {4, 1, 1, 4.500}, {4, 1, 1, 4.125}, {4, 1, 1, 3.750}, {4, 1, 1, 3.375},		// Ch 49 - 54
-    {4, 1, 1, 3.000}, {4, 1, 1, 2.625}, {4, 1, 1, 2.250}, {4, 1, 1, 1.875}, {4, 1, 1, 1.500}, {4, 1, 1, 1.125},		// Ch 55 - 60
-    {5, 1, 1, 1.125}, {5, 1, 1, 1.500}, {5, 1, 1, 1.875}, {5, 1, 1, 2.250}, {5, 1, 1, 2.625}, {5, 1, 1, 3.000},		// Ch 61 - 66
-    {5, 1, 1, 3.375}, {5, 1, 1, 3.750}, {5, 1, 1, 4.125}, {5, 1, 1, 4.500}, {5, 1, 1, 4.875}, {5, 1, 1, 5.250},		// Ch 67 - 72
-    {6, 0, 1, 1.125}, {6, 0, 1, 1.500}, {6, 0, 1, 1.875}, {6, 0, 1, 2.250}, {6, 0, 1, 2.625}, {6, 0, 1, 3.000},		// Ch 73 - 78
-    {6, 0, 1, 3.375}, {6, 0, 1, 3.750}, {6, 0, 1, 4.125}, {6, 0, 1, 4.500}, {6, 0, 1, 4.875}, {6, 0, 1, 5.250},		// Ch 79 - 84
-    {7, 0, 1, 1.125}, {7, 0, 1, 1.500}, {7, 0, 1, 1.875}, {7, 0, 1, 2.250}, {7, 0, 1, 2.625}, {7, 0, 1, 3.000},		// Ch 85 - 90
-    {7, 0, 1, 3.375}, {7, 0, 1, 3.750}, {7, 0, 1, 4.125}, {7, 0, 1, 4.500}, {7, 0, 1, 4.875}, {7, 0, 1, 5.250},		// Ch 90 - 96
-    {-1, 0, 0, 0},    {-1, 0, 0, 0},    {-1, 0, 0, 0},    {-1, 0, 0, 0}};						// no detectors 
+const struct DetectorGeometryStruct {
+    int sig;	// channels are numbered from the center sig=0 / from the edge sig=1
+    int by;		// blue=0 / yellow=1 
+    int io;		// inner=0 / outer=1
+    int ud;		// up=0 / down=1
+    char name[8];
+} Geometry[DETECTORS+1] = {
+//  sig by io ud  name
+    {1, 1, 0, 0, "IYU"}, 
+    {0, 1, 0, 1, "IYD"}, 
+    {1, 0, 0, 1, "IBD"}, 
+    {0, 0, 0, 0, "IBU"}, 
+    {1, 1, 1, 1, "OYD"}, 
+    {0, 1, 1, 0, "OYU"}, 
+    {0, 0, 1, 0, "OBU"}, 
+    {0, 0, 1, 1, "OBD"},
+    {0, 0, 0, 0, "XXX"}};
 
-const char DetName[8][8] = {"IYU", "IYD", "IBD", "IBU", "OYD", "OYU", "OBU", "OBD"};
+//	Geometry functions (from channel number)
+int HJET::Chan2Det(int num) 	
+// translate channel number to detector number
+{
+    int i;
+    i = num / STPERDET;
+    if (i >= DETECTORS) i = DETECTORS;
+    return i;
+}
+
+int HJET::Chan2Strip(int num)	
+// translate channel number to strip number
+{
+    int i, j;
+    i = Chan2Det(num);
+    j = num % STPERDET;
+    if (Geometry[i].sig) {
+        return STPERDET - j - 1;
+    } else {
+        return j;
+    }
+}
+
+float HJET::StripZ(int num)
+// get strip position along the beam from channel number
+{
+    return SIPITCH * Chan2Strip(num) + SI1Z;
+}
+
+const char *HJET::DetName(int num)
+// translate channel number to detector name
+{
+    return Geometry[Chan2Det(num)].name;
+}
+
+int HJET::Chan2Ring(int num)
+// translate channel number to ring
+{
+    return Geometry[Chan2Det(num)].by;
+}
+
+int HJET::Chan2IO(int num)
+// translate channel number to inner/outer
+{
+    return Geometry[Chan2Det(num)].io;
+}
+
+int HJET::Chan2LR(int num)
+// translate channel number to left/right
+{
+    return 1 - ((Chan2Ring(num) + Chan2IO(num)) & 1);
+}
 
 HJET::HJET(char *fname) : TNamed("HJET", "Hydrogen Jet Online Data")
 {
@@ -62,20 +107,20 @@ HJET::HJET(char *fname) : TNamed("HJET", "Hydrogen Jet Online Data")
     memset(HMM, 0, sizeof(HMM));
     memset(HADC, 0, sizeof(HADC));
     memset(HATDET, 0, sizeof(HATDET));
-	memset(HATDYB, 0, sizeof(HATDYB));
+//	memset(HATDYB, 0, sizeof(HATDYB));
     memset(HANDET, 0, sizeof(HANDET));
 
     HSTRIP[0] = new TH1F("HSTRIPY", "Good events in strips distribution", MAXSICHAN, 0, MAXSICHAN);
-//    HSTRIP[0]->GetXaxis()->SetTitle("Strip number");
-//    HSTRIP[0]->GetYaxis()->SetTitle("Number of events");
+    HSTRIP[0]->GetXaxis()->SetTitle("Ch");
+    HSTRIP[0]->GetYaxis()->SetTitle("N_{evt}");
     HSTRIP[0]->SetFillColor(kOrange-2);
     HSTRIP[1] = new TH1F("HSTRIPB", "Good events in strips distribution", MAXSICHAN, 0, MAXSICHAN);
-//    HSTRIP[1]->GetXaxis()->SetTitle("Strip number");
-//    HSTRIP[1]->GetYaxis()->SetTitle("Number of events");
+    HSTRIP[1]->GetXaxis()->SetTitle("Ch");
+    HSTRIP[1]->GetYaxis()->SetTitle("N_{evt}");
     HSTRIP[1]->SetFillColor(kBlue);		// kBlue = 4
     HSTRIP[2] = new TH1F("HSTRIP", "Good events in strips distribution", MAXSICHAN, 0, MAXSICHAN);
-    HSTRIP[2]->GetXaxis()->SetTitle("Strip number");
-    HSTRIP[2]->GetYaxis()->SetTitle("Number of events");
+    HSTRIP[2]->GetXaxis()->SetTitle("Ch");
+    HSTRIP[2]->GetYaxis()->SetTitle("N_{evt}");
 
     HBUNCH[0] = new TH1F("HBUNCHY", "Good events per bunch crossing, YELLOW beam", 120, 0, 120);
     HBUNCH[0]->SetFillColor(kOrange-2);
@@ -85,29 +130,29 @@ HJET::HJET(char *fname) : TNamed("HJET", "Hydrogen Jet Online Data")
     HBUNCH[1]->GetXaxis()->SetTitle("Blue bunch number");
     HBUNCH[0]->GetYaxis()->SetTitle("Number of events");
     HBUNCH[1]->GetYaxis()->SetTitle("Number of events");
-    HE[0]  = new TH1D("HEYJNL", "Good events energy distribution, Yellow,  Jet negative,  left", 100, 0, 6000);
-    HE[1]  = new TH1D("HEYJNR", "Good events energy distribution, Yellow,  Jet negative, right", 100, 0, 6000);
-    HE[2]  = new TH1D("HEYJPL", "Good events energy distribution, Yellow,  Jet positive,  left", 100, 0, 6000);
-    HE[3]  = new TH1D("HEYJPR", "Good events energy distribution, Yellow,  Jet positive, right", 100, 0, 6000);
-    HE[4]  = new TH1D("HEYBNL", "Good events energy distribution, Yellow, Beam negative,  left", 100, 0, 6000);
-    HE[5]  = new TH1D("HEYBNR", "Good events energy distribution, Yellow, Beam negative, right", 100, 0, 6000);
-    HE[6]  = new TH1D("HEYBPL", "Good events energy distribution, Yellow, Beam positive,  left", 100, 0, 6000);
-    HE[7]  = new TH1D("HEYBPR", "Good events energy distribution, Yellow, Beam positive, right", 100, 0, 6000);
-    HE[8]  = new TH1D("HEBJNL", "Good events energy distribution,   Blue,  Jet negative,  left", 100, 0, 6000);
-    HE[9]  = new TH1D("HEBJNR", "Good events energy distribution,   Blue,  Jet negative, right", 100, 0, 6000);
-    HE[10] = new TH1D("HEBJPL", "Good events energy distribution,   Blue,  Jet positive,  left", 100, 0, 6000);
-    HE[11] = new TH1D("HEBJPR", "Good events energy distribution,   Blue,  Jet positive, right", 100, 0, 6000);
-    HE[12] = new TH1D("HEBBNL", "Good events energy distribution,   Blue, Beam negative,  left", 100, 0, 6000);
-    HE[13] = new TH1D("HEBBNR", "Good events energy distribution,   Blue, Beam negative, right", 100, 0, 6000);
-    HE[14] = new TH1D("HEBBPL", "Good events energy distribution,   Blue, Beam positive,  left", 100, 0, 6000);
-    HE[15] = new TH1D("HEBBPR", "Good events energy distribution,   Blue, Beam positive, right", 100, 0, 6000);
+    HE[0]  = new TH1D("HEYJNL", "Good events energy distribution, Yellow,  Jet negative,  left", 200, 0, EMAX4HIST);
+    HE[1]  = new TH1D("HEYJNR", "Good events energy distribution, Yellow,  Jet negative, right", 200, 0, EMAX4HIST);
+    HE[2]  = new TH1D("HEYJPL", "Good events energy distribution, Yellow,  Jet positive,  left", 200, 0, EMAX4HIST);
+    HE[3]  = new TH1D("HEYJPR", "Good events energy distribution, Yellow,  Jet positive, right", 200, 0, EMAX4HIST);
+    HE[4]  = new TH1D("HEYBNL", "Good events energy distribution, Yellow, Beam negative,  left", 200, 0, EMAX4HIST);
+    HE[5]  = new TH1D("HEYBNR", "Good events energy distribution, Yellow, Beam negative, right", 200, 0, EMAX4HIST);
+    HE[6]  = new TH1D("HEYBPL", "Good events energy distribution, Yellow, Beam positive,  left", 200, 0, EMAX4HIST);
+    HE[7]  = new TH1D("HEYBPR", "Good events energy distribution, Yellow, Beam positive, right", 200, 0, EMAX4HIST);
+    HE[8]  = new TH1D("HEBJNL", "Good events energy distribution,   Blue,  Jet negative,  left", 200, 0, EMAX4HIST);
+    HE[9]  = new TH1D("HEBJNR", "Good events energy distribution,   Blue,  Jet negative, right", 200, 0, EMAX4HIST);
+    HE[10] = new TH1D("HEBJPL", "Good events energy distribution,   Blue,  Jet positive,  left", 200, 0, EMAX4HIST);
+    HE[11] = new TH1D("HEBJPR", "Good events energy distribution,   Blue,  Jet positive, right", 200, 0, EMAX4HIST);
+    HE[12] = new TH1D("HEBBNL", "Good events energy distribution,   Blue, Beam negative,  left", 200, 0, EMAX4HIST);
+    HE[13] = new TH1D("HEBBNR", "Good events energy distribution,   Blue, Beam negative, right", 200, 0, EMAX4HIST);
+    HE[14] = new TH1D("HEBBPL", "Good events energy distribution,   Blue, Beam positive,  left", 200, 0, EMAX4HIST);
+    HE[15] = new TH1D("HEBBPR", "Good events energy distribution,   Blue, Beam positive, right", 200, 0, EMAX4HIST);
     for(i=0; i<8; i++) {
-	HE[i]->SetFillColor(kOrange-2);		// was 2
-	HE[i+8]->SetFillColor(kBlue);	// was 4
+	    HE[i]->SetFillColor(kOrange-2);		// was 2
+	    HE[i+8]->SetFillColor(kBlue);	// was 4
     }
     for (i=0; i<16; i++) {
-	HE[i]->GetXaxis()->SetTitle("E_{kin}, keV");
-	HE[i]->GetYaxis()->SetTitle("Number of events");    
+	    HE[i]->GetXaxis()->SetTitle("E_{kin}, keV");
+	    HE[i]->GetYaxis()->SetTitle("Number of events");    
     }
     Banana = NULL;
     MassCutMin = NULL;
@@ -149,8 +194,8 @@ HJET::~HJET(void)
     for(i=0; i<MAXSICHAN; i++) if (HMM[i] != NULL) delete HMM[i];
     for(i=0; i<MAXSICHAN; i++) if (HADC[i] != NULL) delete HADC[i];
     for(i=0; i<DETECTORS; i++) if (HATDET[i] != NULL) delete HATDET[i];
-    for(i=0; i<DETECTORS; i++) if (HATDYB[0][i] != NULL) delete HATDYB[0][i];
-    for(i=0; i<DETECTORS; i++) if (HATDYB[1][i] != NULL) delete HATDYB[1][i];
+//    for(i=0; i<DETECTORS; i++) if (HATDYB[0][i] != NULL) delete HATDYB[0][i];
+//    for(i=0; i<DETECTORS; i++) if (HATDYB[1][i] != NULL) delete HATDYB[1][i];
     for(i=0; i<DETECTORS; i++) if (HANDET[i] != NULL) delete HANDET[i];
     for(i=0; i<sizeof(HE)/sizeof(TH1D *); i++) delete HE[i];
     delete HQ;
@@ -181,30 +226,30 @@ void HJET::Save(char *fname)
     char *_fname;
     
     if (fname != NULL) {
-	_fname = fname;
+	    _fname = fname;
     } else if (Beam[0] != NULL) {
-	sprintf(str, "%d.root", Beam[0]->fillNumberM);
-	_fname = str;
+	    sprintf(str, "%d.root", Beam[0]->fillNumberM);
+	    _fname = str;
     } else {
-	_fname = (char *) "hjet_hist.root";
+	    _fname = (char *) "hjet_hist.root";
     }
     f = new TFile(_fname, "RECREATE");
     if (!f->IsOpen()) {
-	printf("Can not open file %s.\n", _fname);
-	return;
+	    printf("Can not open file %s.\n", _fname);
+	    return;
     }
     if (DataThread != NULL) DataThread->Lock();
     for(i=0; i<MAXSICHAN; i++) {
-	if (HAT[i] != NULL) HAT[i]->Write();
-	if (HM[i] != NULL) HM[i]->Write();
-	if (HMM[i] != NULL) HMM[i]->Write();
-    if (HADC[i] != NULL) HADC[i]->Write();
+	    if (HAT[i] != NULL) HAT[i]->Write();
+	    if (HM[i] != NULL) HM[i]->Write();
+	    if (HMM[i] != NULL) HMM[i]->Write();
+        if (HADC[i] != NULL) HADC[i]->Write();
     }
     for(i=0; i<DETECTORS; i++) {
-	if (HATDET[i] != NULL) HATDET[i]->Write();
-	if (HANDET[i] != NULL) HANDET[i]->Write();
-	if (HATDYB[0][i] != NULL) HATDYB[0][i]->Write();
-	if (HATDYB[1][i] != NULL) HATDYB[1][i]->Write();
+	    if (HATDET[i] != NULL) HATDET[i]->Write();
+	    if (HANDET[i] != NULL) HANDET[i]->Write();
+//	    if (HATDYB[0][i] != NULL) HATDYB[0][i]->Write();
+//	    if (HATDYB[1][i] != NULL) HATDYB[1][i]->Write();
     }
     for(i=0; i < sizeof(HE)/sizeof(TH1D *); i++) HE[i]->Write();
     HBUNCH[0]->Write();
@@ -212,7 +257,7 @@ void HJET::Save(char *fname)
     HSTRIP[0]->Write();
     HSTRIP[1]->Write();
 	HSTRIP[2]->Write();
-//    HQ->Write();
+    HQ->Write();
     f->Close();
     if (DataThread != NULL) DataThread->UnLock();
 }
@@ -222,16 +267,16 @@ void HJET::ResetAllHist(void)
     unsigned i;
     if (DataThread != NULL) DataThread->Lock();
     for(i=0; i<MAXSICHAN; i++) {
-	if (HAT[i] != NULL) HAT[i]->Reset();
-	if (HM[i] != NULL) HM[i]->Reset();
-	if (HMM[i] != NULL) HMM[i]->Reset();
-	if (HADC[i] != NULL) HADC[i]->Reset();
+	    if (HAT[i] != NULL) HAT[i]->Reset();
+	    if (HM[i] != NULL) HM[i]->Reset();
+	    if (HMM[i] != NULL) HMM[i]->Reset();
+	    if (HADC[i] != NULL) HADC[i]->Reset();
     }
     for(i=0; i<DETECTORS; i++) {
-	if (HATDET[i] != NULL) HATDET[i]->Reset();
-	if (HANDET[i] != NULL) HANDET[i]->Reset();
-	if (HATDYB[0][i] != NULL) HATDYB[0][i]->Reset();
-	if (HATDYB[1][i] != NULL) HATDYB[1][i]->Reset();
+	    if (HATDET[i] != NULL) HATDET[i]->Reset();
+	    if (HANDET[i] != NULL) HANDET[i]->Reset();
+//	    if (HATDYB[0][i] != NULL) HATDYB[0][i]->Reset();
+//	    if (HATDYB[1][i] != NULL) HATDYB[1][i]->Reset();
     }
     for(i=0; i < sizeof(HE)/sizeof(TH1D *); i++) HE[i]->Reset();
     HQ->Reset();
@@ -248,42 +293,42 @@ void HJET::Open(char *fname)
     int i;
 /*	First let's close everything	*/
     if (DataThread != NULL) {
-	StopThread = 1;
-	DataThread->Join();
-	sleep(2);
-	DataThread = NULL;
+	    StopThread = 1;
+	    DataThread->Join();
+	    sleep(2);
+	    DataThread = NULL;
     }
     if (DataFile != NULL) {
-	fclose(DataFile);
-	DataFile = NULL;
+	    fclose(DataFile);
+	    DataFile = NULL;
     }
     if (Config != NULL) {
-	free(Config);
-	Config = NULL;
+	    free(Config);
+	    Config = NULL;
     }
     for (i=0; i<2; i++) if (Beam[i] != NULL) {
-	free(Beam[i]);
-	Beam[i] = NULL;
+	    free(Beam[i]);
+	    Beam[i] = NULL;
     }
     for(i=0; i<MAXWAVEFORMS; i++) if (Event[i] != NULL) {
-	free(Event[i]);
-	Event[i] = NULL;
+	    free(Event[i]);
+	    Event[i] = NULL;
     }
     if (NTEvent != NULL) {
-	free(NTEvent);
-	NTEvent = NULL;
+	    free(NTEvent);
+	    NTEvent = NULL;
     }
     if (fname == NULL) return;
 /*	Then let's try to open file and start analysis	*/
     DataFile = fopen64(fname, "rb");
     if (DataFile == NULL) {
-	printf("Can not open file %s : %m.\n", fname);
-	return;
+	    printf("Can not open file %s : %m.\n", fname);
+	    return;
     }
     if (Canvas == NULL) {
-	Canvas = new TCanvas("cvHJET", fname, 102,0, 650,480);
+	    Canvas = new TCanvas("cvHJET", fname, 102, 0, 650, 480);
     } else {
-	Canvas->SetTitle(fname);
+	    Canvas->SetTitle(fname);
     }
 /*    
     signal(SIGTERM, signalHandler);
@@ -336,8 +381,8 @@ void HJET::Draw(Option_t *what)
     TF1 *f;
     
     if (Canvas == NULL) {
-	printf("\nNo Canvas !!!\n");
-	return;
+	    printf("\nNo Canvas !!!\n");
+	    return;
     }
     Canvas->cd();
     Canvas->SetLogz(0);
@@ -347,217 +392,141 @@ void HJET::Draw(Option_t *what)
     if (DataThread != NULL) DataThread->Lock();
     switch(toupper(what[0])) {
     case 'A':	// Detecor A-angle
-	j = (strtol(&what[1], NULL, 0)-1) % DETECTORS;
-	if (HANDET[j] != NULL) {
-	    HANDET[j]->SetStats(0);
-	    HANDET[j]->Draw("box");
-	    CutEkin->Draw(1);
-	    if (Parabola == NULL) Parabola = new TF1("Parabola", "1840000*sin(x)*sin(x)", -1, 1);
-	    Parabola->SetLineColor(3);
-	    Parabola->SetLineWidth(2);    
-	    Parabola->Draw("same");
-	} else {
-	    DrawDummy(what);
-	}
-	break;
+	    j = (strtol(&what[1], NULL, 0)-1) % DETECTORS;
+	    if (HANDET[j] != NULL) {
+	        HANDET[j]->SetStats(0);
+	        HANDET[j]->Draw("box");
+	        CutEkin->Draw(1);
+	        if (Parabola == NULL) Parabola = new TF1("Parabola", "1840000*sin(x)*sin(x)", -1, 1);
+	        Parabola->SetLineColor(3);
+	        Parabola->SetLineWidth(2);    
+	        Parabola->Draw("same");
+	    } else {
+	        DrawDummy(what);
+	    }
+	    break;
     case 'B':	// Blue bunches
-	HBUNCH[1]->Draw();
-	break;
+	    HBUNCH[1]->Draw();
+	    break;
 	case 'C':      // ADC histograms
-	j = (strtol(&what[1], NULL, 0)-1) % MAXSICHAN;
-    if (HADC[j] != NULL) {
-     HADC[j]->Draw();	
-    }
-	else {
-	 DrawDummy(what);
-	}
-	break;
+	    j = (strtol(&what[1], NULL, 0)-1) % MAXSICHAN;
+        if (HADC[j] != NULL) {
+            HADC[j]->Draw();	
+        } else {
+	        DrawDummy(what);
+	    }
+	    break;
     case 'D':	// Detector AT
-	j = (strtol(&what[1], NULL, 0)-1) % DETECTORS;
-	if (HATDET[j] != NULL) {
-	    Canvas->SetLogz(1);
-	    HATDET[j]->Draw("color");
-	    CutTOF->Draw(1);
-	    CutEkin->Draw(0);
-	    sprintf(str, "%f/sqrt(x)", 22.8*Config->TOFLength);
-	    if (Banana == NULL) Banana = new TF1("Banana", str, 0, 6000);
-	    Banana->SetLineColor(3);
-	    Banana->SetLineWidth(2);    
-	    Banana->Draw("same");
+	    j = (strtol(&what[1], NULL, 0)-1) % DETECTORS;
+	    if (HATDET[j] != NULL) {
+	        Canvas->SetLogz(1);
+	        HATDET[j]->Draw("color");
+	        CutTOF->Draw(1);
+	        CutEkin->Draw(0);
+	        sprintf(str, "%f/sqrt(x)", 22.8*Config->TOFLength);
+	        if (Banana == NULL) Banana = new TF1("Banana", str, 0, EMAX4HIST);
+	        Banana->SetLineColor(3);
+	        Banana->SetLineWidth(2);
+	        Banana->Draw("same");
 
 // Plot the mass cut ranges...
-		CutRmass->Get(&massCut_min, &massCut_max);
+		    CutRmass->Get(&massCut_min, &massCut_max);
 		
-		sprintf(str, "%f/sqrt(x)", factor*sqrt(massCut_min)*Config->TOFLength);
-		if (MassCutMin == NULL) MassCutMin = new TF1("MassCutMin", str, 0, 6000);
-		MassCutMin->SetLineColor(kRed);
-		MassCutMin->SetLineWidth(2);
-		MassCutMin->Draw("same");
+		    sprintf(str, "%f/sqrt(x)", factor*sqrt(massCut_min)*Config->TOFLength);
+		    if (MassCutMin == NULL) MassCutMin = new TF1("MassCutMin", str, 0, EMAX4HIST);
+		    MassCutMin->SetLineColor(kRed);
+		    MassCutMin->SetLineWidth(2);
+		    MassCutMin->Draw("same");
 		
-		sprintf(str, "%f/sqrt(x)", factor*sqrt(massCut_max)*Config->TOFLength);
-		if (MassCutMax == NULL) MassCutMax = new TF1("MassCutMax", str, 0, 6000);
-		MassCutMax->SetLineColor(kRed);
-		MassCutMax->SetLineWidth(2);
-		MassCutMax->Draw("same");
+		    sprintf(str, "%f/sqrt(x)", factor*sqrt(massCut_max)*Config->TOFLength);
+		    if (MassCutMax == NULL) MassCutMax = new TF1("MassCutMax", str, 0, EMAX4HIST);
+		    MassCutMax->SetLineColor(kRed);
+		    MassCutMax->SetLineWidth(2);
+		    MassCutMax->Draw("same");
 
-	} else {
-	    DrawDummy(what);
-	}
-	break;
+	    } else {
+	        DrawDummy(what);
+	    }
+	    break;
     case 'E':	// Energy
-	j = (strtol(&what[1], NULL, 0)-1) % (sizeof(HE)/sizeof(TH1D *));
-	f = new TF1("fit_fun", "[0]*exp(-0.000001876*[1]*x)", 0, 6000);
-	f->SetParName(0, "Constant");
-	f->SetParName(1, "Slope, (GeV/c)^{-2}");
-	HE[j]->Fit("fit_fun");
-	break;
-
-    case 'F':	// Detector AT for Y/B plot
-	j = (strtol(&what[1], NULL, 0)-1) % DETECTORS;
-    if (CanvYB == NULL) {
-	CanvYB = new TCanvas("cvDYB", "Yellow/Blue", 102,0, 650,850);
-	CanvYB->Divide(1,2);
-    } else {
-	CanvYB->SetTitle("Yellow/Blue");
-    }
-// Draw Yellow half of detector...
-	CanvYB->cd(1);
-	if (HATDYB[0][j] != NULL) {
-	    gPad->SetLogz(1);
-	    HATDYB[0][j]->Draw("color");
-	    CutTOF->Draw(1);
-	    CutEkin->Draw(0);
-	    sprintf(str, "%f/sqrt(x)", 22.8*Config->TOFLength);
-	    if (Banana == NULL) Banana = new TF1("Banana", str, 0, 6000);
-	    Banana->SetLineColor(3);
-	    Banana->SetLineWidth(2);    
-	    Banana->Draw("same");
-
-// Plot the mass cut ranges...
-		CutRmass->Get(&massCut_min, &massCut_max);
-		
-		sprintf(str, "%f/sqrt(x)", factor*sqrt(massCut_min)*Config->TOFLength);
-		if (MassCutMin == NULL) MassCutMin = new TF1("MassCutMin", str, 0, 6000);
-		MassCutMin->SetLineColor(kRed);
-		MassCutMin->SetLineWidth(2);
-		MassCutMin->Draw("same");
-		
-		sprintf(str, "%f/sqrt(x)", factor*sqrt(massCut_max)*Config->TOFLength);
-		if (MassCutMax == NULL) MassCutMax = new TF1("MassCutMax", str, 0, 6000);
-		MassCutMax->SetLineColor(kRed);
-		MassCutMax->SetLineWidth(2);
-		MassCutMax->Draw("same");
-
-	} else {
-	    DrawDummy(what);
-	}
-// Draw Blue half of detector...
-	CanvYB->cd(2);
-	if (HATDYB[1][j] != NULL) {
-	    gPad->SetLogz(1);
-	    HATDYB[1][j]->Draw("color");
-	    CutTOF->Draw(1);
-	    CutEkin->Draw(0);
-	    sprintf(str, "%f/sqrt(x)", 22.8*Config->TOFLength);
-	    if (Banana == NULL) Banana = new TF1("Banana", str, 0, 6000);
-	    Banana->SetLineColor(3);
-	    Banana->SetLineWidth(2);    
-	    Banana->Draw("same");
-
-// Plot the mass cut ranges...
-		CutRmass->Get(&massCut_min, &massCut_max);
-		
-		sprintf(str, "%f/sqrt(x)", factor*sqrt(massCut_min)*Config->TOFLength);
-		if (MassCutMin == NULL) MassCutMin = new TF1("MassCutMin", str, 0, 6000);
-		MassCutMin->SetLineColor(kRed);
-		MassCutMin->SetLineWidth(2);
-		MassCutMin->Draw("same");
-		
-		sprintf(str, "%f/sqrt(x)", factor*sqrt(massCut_max)*Config->TOFLength);
-		if (MassCutMax == NULL) MassCutMax = new TF1("MassCutMax", str, 0, 6000);
-		MassCutMax->SetLineColor(kRed);
-		MassCutMax->SetLineWidth(2);
-		MassCutMax->Draw("same");
-
-	} else {
-	    DrawDummy(what);
-	}
-	CanvYB->cd(0);	// Just to look nicer
-	CanvYB->Update();
-	break;
+	    j = (strtol(&what[1], NULL, 0)-1) % (sizeof(HE)/sizeof(TH1D *));
+	    f = new TF1("fit_fun", "[0]*exp(-0.000001876*[1]*x)", 0, EMAX4HIST);
+	    f->SetParName(0, "Constant");
+	    f->SetParName(1, "Slope, (GeV/c)^{-2}");
+	    HE[j]->Fit("fit_fun");
+	    break;
 
     case 'H':	// Strip AT
-	j = (strtol(&what[1], NULL, 0)-1) % MAXSICHAN;
-	if (HAT[j] != NULL) {
-	    Canvas->SetLogz(1);
-	    HAT[j]->Draw("color");
-	    CutRawAmpl->Draw();
-	} else {
-	    DrawDummy(what);
-	}
-	break;
+	    j = (strtol(&what[1], NULL, 0)-1) % MAXSICHAN;
+	    if (HAT[j] != NULL) {
+	        Canvas->SetLogz(1);
+	        HAT[j]->Draw("color");
+	        CutRawAmpl->Draw();
+	    } else {
+	        DrawDummy(what);
+	    }
+	    break;
     case 'M':	// Missing mass
-	j = (strtol(&what[1], NULL, 0)-1) % MAXSICHAN;
-	if (HMM[j] != NULL) {
-	    HMM[j]->Draw();
-	    CutMmass->Draw();
-	    l.DrawLine(0.880, -LARGE_VALUE, 0.880, LARGE_VALUE);
-	} else {
-	    DrawDummy(what);
-	}
-	break;
+	    j = (strtol(&what[1], NULL, 0)-1) % MAXSICHAN;
+	    if (HMM[j] != NULL) {
+	        HMM[j]->Draw();
+	        CutMmass->Draw();
+	        l.DrawLine(0.880, -LARGE_VALUE, 0.880, LARGE_VALUE);
+	    } else {
+	        DrawDummy(what);
+	    }
+	    break;
     case 'Q':	// Quality
-	HQ->Draw();
-	CutQuality->Draw();
-	break;
+	    HQ->Draw();
+	    CutQuality->Draw();
+	    break;
     case 'R':	// Recoiled mass
-	j = (strtol(&what[1], NULL, 0)-1) % MAXSICHAN;
-	if (HM[j] != NULL) {
-	    HM[j]->Draw();
-	    CutRmass->Draw();
-	    l.DrawLine(0.938, -LARGE_VALUE, 0.938, LARGE_VALUE);
-	} else {
-	    DrawDummy(what);
-	}
-	break;
+	    j = (strtol(&what[1], NULL, 0)-1) % MAXSICHAN;
+	    if (HM[j] != NULL) {
+	        HM[j]->Draw();
+	        CutRmass->Draw();
+	        l.DrawLine(0.938, -LARGE_VALUE, 0.938, LARGE_VALUE);
+	    } else {
+	        DrawDummy(what);
+	    }
+	    break;
     case 'S':	// Strip distribution
-	HSTRIP[2]->Draw();
-	HSTRIP[0]->Draw("same");
-	HSTRIP[1]->Draw("same");
-	break;
+	    HSTRIP[2]->Draw();
+	    HSTRIP[0]->Draw("same");
+	    HSTRIP[1]->Draw("same");
+	    break;
     case 'W': // draw raw event #(what[1...]%MAXWAVEFORMS)
-	j = (strtol(&what[1], NULL, 0)-1) % MAXWAVEFORMS;
-	wfLen = (Config->JetDelay & 0xFF) * 6;	// waveform length in points
-	if (Event[j]->bpol > 0) {
-	    bp = '+';
-	} else if (Event[j]->bpol < 0) {
-	    bp = '-';
-	} else {
-	    bp = '0';
-	}
-	if (Event[j]->jpol > 0) {
-	    jp = '+';
-	} else if (Event[j]->jpol < 0) {
-	    jp = '-';
-	} else {
-	    jp = '0';
-	}
-	sprintf(str, "Si #%d evt %d/%d %s B=%d BPol=%c JPol=%c T=%4.1f A=%4.1f rev=%d Q=%g",
-	    Event[j]->chan+1, j+1, MAXWAVEFORMS, 
-	    (Event[j]->quality) < 0 ? "OLD" : "NEW",
-	    Event[j]->bunch, bp, jp, Event[j]->time, Event[j]->ampl,
-	    Event[j]->rev, Event[j]->quality);
-	hist = new TH1F("cvhist", str, wfLen, 0, wfLen);
-	for(i=0; i<wfLen; i++) hist->SetBinContent(i+1, Event[j]->wave[i]);
-	hist->SetStats(0);
-	hist->SetMinimum(0);
-	hist->SetMaximum(255);
-	hist->DrawCopy("*H");
-	delete hist;
-	break;
+	    j = (strtol(&what[1], NULL, 0)-1) % MAXWAVEFORMS;
+	    wfLen = (Config->JetDelay & 0xFF) * 6;	// waveform length in points
+	    if (Event[j]->bpol > 0) {
+	        bp = '+';
+	    } else if (Event[j]->bpol < 0) {
+	        bp = '-';
+	    } else {
+	        bp = '0';
+	    }
+	    if (Event[j]->jpol > 0) {
+	        jp = '+';
+	    } else if (Event[j]->jpol < 0) {
+	        jp = '-';
+	    } else {
+	        jp = '0';
+	    }
+	    sprintf(str, "Si #%d evt %d/%d %s B=%d BPol=%c JPol=%c T=%4.1f A=%4.1f rev=%d Q=%g",
+	        Event[j]->chan+1, j+1, MAXWAVEFORMS, (Event[j]->quality) < 0 ? "OLD" : "NEW",
+	        Event[j]->bunch, bp, jp, Event[j]->time, Event[j]->ampl,
+	        Event[j]->rev, Event[j]->quality);
+	    hist = new TH1F("cvhist", str, wfLen, 0, wfLen);
+	    for(i=0; i<wfLen; i++) hist->SetBinContent(i+1, Event[j]->wave[i]);
+	    hist->SetStats(0);
+	    hist->SetMinimum(0);
+	    hist->SetMaximum(255);
+	    hist->DrawCopy("*H");
+	    delete hist;
+	    break;
     case 'Y':	// yellow bunches
-	HBUNCH[0]->Draw();
-	break;
+	    HBUNCH[0]->Draw();
+	    break;
     }
     if (DataThread != NULL) DataThread->UnLock();
     Canvas->Update();
@@ -566,11 +535,10 @@ void HJET::Draw(Option_t *what)
 void HJET::ShowStatistics(void)
 {
     if (Beam[0] == NULL) {
-	printf("The startup. No beam data record yet. %d records so far.\n", RecNum);
+	    printf("The startup. No beam data record yet. %d records so far.\n", RecNum);
     } else {
-	printf("Fill:%d: %d records, Events: total = %d, Good Yellow = %d, Blue = %d.\n", 
-	    Beam[0]->fillNumberM, RecNum, EventCounter, 
-	    (int)HBUNCH[0]->GetEntries(), (int)HBUNCH[1]->GetEntries());
+	    printf("Fill:%d: %d records, Events: total = %d, Good Yellow = %d, Blue = %d.\n", 
+	        Beam[0]->fillNumberM, RecNum, EventCounter, (int)HBUNCH[0]->GetEntries(), (int)HBUNCH[1]->GetEntries());
     }
 }
 
@@ -656,7 +624,8 @@ void HJET::PrintRawAsym(void)
      strA = getenv("HJET_DAQ");
      sprintf(strB,".%s",strA);
      fsummary = fopen(strB,"w");
-     fprintf(fsummary,"%8d %8d %7.4f %6.4f %7.4f %6.4f %7.3f %6.3f %7.4f %6.4f %7.4f %6.4f %7.3f %6.3f\n", (int)HBUNCH[0]->GetEntries(), (int)HBUNCH[1]->GetEntries(), yjval, yjerr, ybval, yberr, yval, yerr, ajval, ajerr, abval, aberr, rval, rerr);
+     fprintf(fsummary,"%8d %8d %7.4f %6.4f %7.4f %6.4f %7.3f %6.3f %7.4f %6.4f %7.4f %6.4f %7.3f %6.3f\n", 
+        (int)HBUNCH[0]->GetEntries(), (int)HBUNCH[1]->GetEntries(), yjval, yjerr, ybval, yberr, yval, yerr, ajval, ajerr, abval, aberr, rval, rerr);
      fclose(fsummary);
     }
 }
@@ -676,10 +645,10 @@ void HJET::SetConfigName(char *cname)
 {
     if (ConfigName != NULL) free(ConfigName);
     if (cname == NULL) {
-	ConfigName = NULL;
+	    ConfigName = NULL;
     } else {
-	ConfigName = (char *) malloc(strlen(cname)+1);
-	if (ConfigName != NULL) strcpy(ConfigName, cname);
+	    ConfigName = (char *) malloc(strlen(cname)+1);
+	    if (ConfigName != NULL) strcpy(ConfigName, cname);
     }
 }
 
@@ -695,24 +664,24 @@ void HJET::ReadConfig(char *cname)
     
     if (cname == NULL) return;
     if (Config == NULL) {
-	SetConfigName(cname);
-	return;
+	    SetConfigName(cname);
+	    return;
     }
     
     f = fopen(cname, "rt");
     if (f == NULL) {
-	printf("Can not open file %s - %m.\n", cname);
-	return;
+	    printf("Can not open file %s - %m.\n", cname);
+	    return;
     }
     for(;!feof(f);) {
-	fgets(str, sizeof(str), f);
-	if(!strncmp(str, chan, sizeof(chan))) continue;
-	sscanf(&str[sizeof(chan)-1], "%d=%f %f %f", &i, &f1, &f2, &f3);
-	if (i > 0 && i <= MAXSICHAN) {
-	    Config->chan[i-1].t0 = f1;
-	    Config->chan[i-1].ecoef = f2;
-	    Config->chan[i-1].edead = f3;
-	}
+	    fgets(str, sizeof(str), f);
+	    if(!strncmp(str, chan, sizeof(chan))) continue;
+	    sscanf(&str[sizeof(chan)-1], "%d=%f %f %f", &i, &f1, &f2, &f3);
+	    if (i > 0 && i <= MAXSICHAN) {
+	        Config->chan[i-1].t0 = f1;
+	        Config->chan[i-1].ecoef = f2;
+	        Config->chan[i-1].edead = f3;
+	    }
     }
     fclose(f);
 }
@@ -751,12 +720,12 @@ float FindTime(unsigned char *wave, int len, float ampl, float &q)
     ib = i - LINEPOINTS/2;
     ie = i + LINEPOINTS/2;
     if (ib < 0) {
-	ib = 0;
-	ie = ib + LINEPOINTS;
+	    ib = 0;
+	    ie = ib + LINEPOINTS;
     }
     if (ie > len) {
-	ie = len;
-	ib = ie - LINEPOINTS;
+	    ie = len;
+	    ib = ie - LINEPOINTS;
     }
     
     x = 0;
@@ -765,10 +734,10 @@ float FindTime(unsigned char *wave, int len, float ampl, float &q)
     xy = 0;
     
     for(i=ib; i<ie; i++) {
-	x += i;
-	y += wave[i];
-	x2 += i*i;
-	xy += i*wave[i];
+	    x += i;
+	    y += wave[i];
+	    x2 += i*i;
+	    xy += i*wave[i];
     }
     
     x /= LINEPOINTS;
@@ -858,27 +827,10 @@ TH2F *HJET::CreateHistATDet(int det)
     int tmax;
     
     sprintf(strs, "HATDET%d", det+1);
-    sprintf(strl, "Hydrogen jet Time versus Amplitude Det%d (%s)", det+1, DetName[det]);
+    sprintf(strl, "Hydrogen jet Time versus Amplitude Det%d (%s)", det+1, Geometry[det].name);
     tmax = (2 - Config->CSR.split.B120)*45;	// maximum time: 45/90 for 60/120 bunch mode
 //    gROOT->cd();		// in memory
-    h = new TH2F(strs, strl, 100, 0, 6000, tmax, 0, tmax*Config->WFDTUnit);	// 6000 kev * 107.1 ns
-    h->GetXaxis()->SetTitle("E_{kin}, keV");
-    h->GetYaxis()->SetTitle("TOF, ns");
-    return h;
-}
-
-/*	Create time versus amplitude histogram for Y/B stacked plots	*/
-TH2F *HJET::CreateHistATYB(int k, int det)
-{
-    TH2F *h;
-    char strs[10], strl[100];
-    int tmax;
-    
-    sprintf(strs, "HAT%s%d", (k == 0) ? "Y" : "B", det+1);
-    sprintf(strl, "Hydrogen jet Time versus Amplitude Det%d %s", det+1, (k == 0) ? "Yellow" : "Blue");
-    tmax = (2 - Config->CSR.split.B120)*45;	// maximum time: 45/90 for 60/120 bunch mode
-//    gROOT->cd();		// in memory
-    h = new TH2F(strs, strl, 100, 0, 6000, tmax, 0, tmax*Config->WFDTUnit);	// 6000 kev * 107.1 ns
+    h = new TH2F(strs, strl, 100, 0, EMAX4HIST, tmax, 0, tmax*Config->WFDTUnit);	// EMAX4HIST kev * 107.1 ns
     h->GetXaxis()->SetTitle("E_{kin}, keV");
     h->GetYaxis()->SetTitle("TOF, ns");
     return h;
@@ -892,19 +844,17 @@ TH2F *HJET::CreateHistANDet(int det)
     float angmax;
     
     sprintf(strs, "HANDET%d", det+1);
-    sprintf(strl, "Hydrogen jet Energy versus angle Det%d (%s)", det+1, DetName[det]);
+    sprintf(strl, "Hydrogen jet Energy versus angle Det%d (%s)", det+1, Geometry[det].name);
     // angmax = 3.78/Config->TOFLength;
     // h = new TH2F(strs, strl, 17, -angmax, angmax, 50, 0, 6000);
     angmax = 6/Config->TOFLength;
-    h = new TH2F(strs, strl, 40, -angmax, angmax, 50, 0, 8000);
+    h = new TH2F(strs, strl, 40, -angmax, angmax, 50, 0, EMAX4HIST);
     h->GetXaxis()->SetTitle("rad");
     h->GetYaxis()->SetTitle("E_{kin}, keV");
     h->SetFillColor(4);
     
     return h;
 }
-
-//	????????????????????????????????????????????????????????????????????????
 
 /*  Create histogram of ADC counts, i.e., histogram of NTEvent->ampl  */
 TH1F *HJET::CreateHistC(int chan)
@@ -913,8 +863,8 @@ TH1F *HJET::CreateHistC(int chan)
     char strs[10], strl[100];
     
     int nchan = chan + 1;
-    int ndet = (int)floor(chan/16) + 1;
-    int nstrip = (chan % 16) + 1;
+    int ndet = Chan2Det(chan) + 1;
+    int nstrip = Chan2Strip(chan) + 1;
     
     sprintf(strs, "HADC%d", nchan);
     sprintf(strl, "ADC Events Si%d (Det %d Strip %d)", nchan, ndet, nstrip);
@@ -941,7 +891,6 @@ void HJET::FillEvent()
 {
     float c = 29.9792458;	// c, cm/ns
     float M = 0.938;	// proton mass, GeV
-    float pitch = 0.42;	// strips pitch, cm
     float angcorr = 9.0;// magnetic field correction, cm*MeV/c
     float E;    // beam energy, GeV
     float beta; // Recoil v/c
@@ -951,70 +900,62 @@ void HJET::FillEvent()
 
     if (NTEvent->chan < 0 || NTEvent->chan > MAXSICHAN) return;
 
-    det = NTEvent->chan / 16;
-    indet = NTEvent->chan % 16;
-    E = Beam[(indet > 7) ? 1 : 0]->beamEnergyM;
-    NTEvent->ekin = Config->chan[NTEvent->chan].ecoef * NTEvent->ampl;
+    det = Chan2Det(NTEvent->chan);
+    indet = Chan2Strip(NTEvent->chan);
+    E = Beam[Chan2Ring(NTEvent->chan)]->beamEnergyM;
+    NTEvent->ekin = Config->chan[NTEvent->chan].ecoef * NTEvent->ampl;              // !! No idea of passing through particles here
     NTEvent->ekin += energy_loss(NTEvent->ekin)*Config->chan[NTEvent->chan].edead;	// dead layer correction
     NTEvent->tof = NTEvent->time*Config->WFDTUnit - Config->chan[NTEvent->chan].t0 + TimeCorr;
-    beta = Config->TOFLength/(c*NTEvent->tof);
-    NTEvent->rmass = 2.0E-6*NTEvent->ekin/(beta*beta);
-    NTEvent->angle = ((indet > 7) ? (indet - 6.5) : (indet - 8.5)) * pitch/Config->TOFLength;
-    NTEvent->angle += ((det > 2) ? 1. : -1.)*angcorr/(sqrt(2*M*NTEvent->ekin)*Config->TOFLength);// magnetic field
+    beta = Config->TOFLength / (c*NTEvent->tof);
+    NTEvent->rmass = 2.0E-6*NTEvent->ekin / (beta*beta);
+    NTEvent->angle = StripZ(NTEvent->chan) / Config->TOFLength;
+    NTEvent->angle += ((Chan2IO(NTEvent->chan)) ? 1. : -1.)*angcorr/(sqrt(2*M*NTEvent->ekin)*Config->TOFLength);// magnetic field
 // approximation: not relativistic for recoiled
-    NTEvent->mmass2 = M*M - 2.0E-6*(M+E)*NTEvent->ekin + 
-	2*sqrt(E*E-M*M)*sqrt(2.0E-6*M*NTEvent->ekin)*fabs(sin(NTEvent->angle));
+    NTEvent->mmass2 = M*M - 2.0E-6*(M+E)*NTEvent->ekin + 2*sqrt(E*E-M*M)*sqrt(2.0E-6*M*NTEvent->ekin)*fabs(sin(NTEvent->angle));
 
     DataThread->Lock();
     HQ->Fill(NTEvent->quality);
 
     if (CutQuality->Cut(NTEvent->quality)) {
-	if (HAT[NTEvent->chan] == NULL) HAT[NTEvent->chan] = CreateHistAT(NTEvent->chan);
-	HAT[NTEvent->chan]->Fill(NTEvent->ampl, NTEvent->time);
+	    if (HAT[NTEvent->chan] == NULL) HAT[NTEvent->chan] = CreateHistAT(NTEvent->chan);
+	    HAT[NTEvent->chan]->Fill(NTEvent->ampl, NTEvent->time);
 
-	if (HM[NTEvent->chan] == NULL) HM[NTEvent->chan] = CreateHistM(NTEvent->chan);
-	if (CutTOF->Cut(NTEvent->tof) && CutEkin->Cut(NTEvent->ekin) && CutRawAmpl->Cut(NTEvent->ampl)) 
-	    HM[NTEvent->chan]->Fill(NTEvent->rmass);
+	    if (HM[NTEvent->chan] == NULL) HM[NTEvent->chan] = CreateHistM(NTEvent->chan);
+	    if (CutTOF->Cut(NTEvent->tof) && CutEkin->Cut(NTEvent->ekin) && CutRawAmpl->Cut(NTEvent->ampl)) 
+	        HM[NTEvent->chan]->Fill(NTEvent->rmass);
 
-    if (HMM[NTEvent->chan] == NULL) HMM[NTEvent->chan] = CreateHistMM(NTEvent->chan);
-	if (CutTOF->Cut(NTEvent->tof) && CutEkin->Cut(NTEvent->ekin) && CutRawAmpl->Cut(NTEvent->ampl) 
-	    && CutRmass->Cut(NTEvent->rmass)) HMM[NTEvent->chan]->Fill(NTEvent->mmass2);
+        if (HMM[NTEvent->chan] == NULL) HMM[NTEvent->chan] = CreateHistMM(NTEvent->chan);
+	    if (CutTOF->Cut(NTEvent->tof) && CutEkin->Cut(NTEvent->ekin) && CutRawAmpl->Cut(NTEvent->ampl) 
+	        && CutRmass->Cut(NTEvent->rmass)) HMM[NTEvent->chan]->Fill(NTEvent->mmass2);
 
-    if (HADC[NTEvent->chan] == NULL) HADC[NTEvent->chan] = CreateHistC(NTEvent->chan);
-    HADC[NTEvent->chan]->Fill(NTEvent->ampl);
+        if (HADC[NTEvent->chan] == NULL) HADC[NTEvent->chan] = CreateHistC(NTEvent->chan);
+        HADC[NTEvent->chan]->Fill(NTEvent->ampl);
     
-    if (HATDET[det] == NULL) HATDET[det] = CreateHistATDet(det);
-	HATDET[det]->Fill(NTEvent->ekin, NTEvent->tof);
+        if (HATDET[det] == NULL) HATDET[det] = CreateHistATDet(det);
+	    HATDET[det]->Fill(NTEvent->ekin, NTEvent->tof);
 
-	k = ((NTEvent->chan/8)%2 == 0) ? 0 : 1;
-    if (HATDYB[k][det] == NULL) HATDYB[k][det] = CreateHistATYB(k,det);
-	HATDYB[k][det]->Fill(NTEvent->ekin, NTEvent->tof);
+        if (HANDET[det] == NULL) HANDET[det] = CreateHistANDet(det);
+	    if (CutTOF->Cut(NTEvent->tof) && CutEkin->Cut(NTEvent->ekin) && CutRawAmpl->Cut(NTEvent->ampl) && 
+	        CutRmass->Cut(NTEvent->rmass) && CutMmass->Cut(NTEvent->mmass2)) HANDET[det]->Fill(NTEvent->angle, NTEvent->ekin);
 
-    if (HANDET[det] == NULL) HANDET[det] = CreateHistANDet(det);
-	if (CutTOF->Cut(NTEvent->tof) && CutEkin->Cut(NTEvent->ekin) && CutRawAmpl->Cut(NTEvent->ampl) && 
-	    CutRmass->Cut(NTEvent->rmass) && CutMmass->Cut(NTEvent->mmass2)) 
-	    HANDET[det]->Fill(NTEvent->angle, NTEvent->ekin);
-
-	if (CutTOF->Cut(NTEvent->tof) && CutEkin->Cut(NTEvent->ekin) && CutRawAmpl->Cut(NTEvent->ampl) && 
-	    CutRmass->Cut(NTEvent->rmass) ) {  // && CutMmass->Cut(NTEvent->mmass2)) {
-        k = ((NTEvent->chan/8)%2 == 0) ? 0 : 1;
-	    HSTRIP[k]->Fill(NTEvent->chan);		// Yellow or blue strips
-		HSTRIP[2]->Fill(NTEvent->chan);		// Both yellow and blue strips
-	    HBUNCH[indet/8]->Fill(NTEvent->bunch);
-	    if (NTEvent->bpol != 0 && NTEvent->jpol != 0) {
-		i = (indet > 7) ? 8 : 0;
-		k = ((indet > 7 && det <= 2) || (indet <= 7 && det > 2)) ? 1 : 0;
-		j = (NTEvent->jpol > 0) ? 2 : 0;
-		HE[i+j+k]->Fill(NTEvent->ekin);
-		j = (NTEvent->bpol > 0) ? 2 : 0;
-		HE[i+j+k+4]->Fill(NTEvent->ekin);
+	    if (CutTOF->Cut(NTEvent->tof) && CutEkin->Cut(NTEvent->ekin) && CutRawAmpl->Cut(NTEvent->ampl) && CutRmass->Cut(NTEvent->rmass) ) {
+	        HSTRIP[Chan2Ring(NTEvent->chan)]->Fill(NTEvent->chan);		// Yellow or blue strips
+		    HSTRIP[2]->Fill(NTEvent->chan);		// Both yellow and blue strips
+	        HBUNCH[indet/8]->Fill(NTEvent->bunch);
+	        if (NTEvent->bpol != 0 && NTEvent->jpol != 0) {
+		        i = 8 * Chan2Ring(NTEvent->chan);
+		        k = Chan2LR(NTEvent->chan);
+		        j = (NTEvent->jpol > 0) ? 2 : 0;
+		        HE[i+j+k]->Fill(NTEvent->ekin);
+		        j = (NTEvent->bpol > 0) ? 2 : 0;
+		        HE[i+j+k+4]->Fill(NTEvent->ekin);
+	        }
 	    }
-	}
     }
 /*	This function is called always from DataThread ...*/
     if (RootFile != NULL) {
-	if (NT[NTEvent->chan] == NULL) NT[NTEvent->chan] = CreateTree(NTEvent->chan);
-	NT[NTEvent->chan]->Fill();
+	    if (NT[NTEvent->chan] == NULL) NT[NTEvent->chan] = CreateTree(NTEvent->chan);
+	    NT[NTEvent->chan]->Fill();
     }
     DataThread->UnLock();
 }
@@ -1022,12 +963,12 @@ void HJET::FillEvent()
 Bool_t HJET::HandleTimer(TTimer *)
 {
     if (DataFile == NULL && fQueue[0] != NULL) {
-	Open(fQueue[0]);
-	free(fQueue[0]);
-	memmove(fQueue, &fQueue[1], sizeof(fQueue) - sizeof(fQueue[0]));
+	    Open(fQueue[0]);
+	    free(fQueue[0]);
+	    memmove(fQueue, &fQueue[1], sizeof(fQueue) - sizeof(fQueue[0]));
     }
     if (fQueue[0] == NULL) {
-	QueueTimer->TurnOff();
+	    QueueTimer->TurnOff();
     }
     return kFALSE;
 }
@@ -1038,14 +979,14 @@ void HJET::Queue(char *fname)
     if (DataThread != NULL) DataThread->Lock();
     for(i=0; i<MAXQUEUE; i++) if (fQueue[i] == NULL) break;
     if (i == MAXQUEUE) {
-	printf("Too many (%d) files already in the queue. Try later.\n", MAXQUEUE);
+	    printf("Too many (%d) files already in the queue. Try later.\n", MAXQUEUE);
     } else {
-	fQueue[i] = (char *)malloc(strlen(fname) + 1);
-	if (fQueue[i] == NULL) {
-	    printf("Not enough memory.");
-	} else {
-	    strcpy(fQueue[i], fname);
-	}
+	    fQueue[i] = (char *)malloc(strlen(fname) + 1);
+	    if (fQueue[i] == NULL) {
+	        printf("Not enough memory.");
+	    } else {
+	        strcpy(fQueue[i], fname);
+	    }
     }
     if (DataThread != NULL) DataThread->UnLock();
     QueueTimer->TurnOn();
@@ -1067,34 +1008,34 @@ void HJET::SetFile(char *fname)
     if (DataThread != NULL) DataThread->Lock();
     if (RootFile != NULL) {
 /*	Save and close n-tuples	*/
-	for(i=0; i<MAXSICHAN; i++) if (NT[i] != NULL) {
-	    NT[i]->Write();
-	    delete NT[i];
-	    NT[i] = NULL;
-	}
+	    for(i=0; i<MAXSICHAN; i++) if (NT[i] != NULL) {
+	        NT[i]->Write();
+	        delete NT[i];
+	        NT[i] = NULL;
+	    }
 
-    for(i=0; i < floor(sizeof(HE)/sizeof(TH1D *)); i++) HE[i]->Write();
-    HBUNCH[0]->Write();
-    HBUNCH[1]->Write();
-    HSTRIP[0]->Write();
-    HSTRIP[1]->Write();
-	HSTRIP[2]->Write();
-//    HQ->Write();
+        for(i=0; i < floor(sizeof(HE)/sizeof(TH1D *)); i++) HE[i]->Write();
+        HBUNCH[0]->Write();
+        HBUNCH[1]->Write();
+        HSTRIP[0]->Write();
+        HSTRIP[1]->Write();
+	    HSTRIP[2]->Write();
+        HQ->Write();
 
-	printf("Saving and closing %s\n", RootFile->GetName());
-	RootFile->Write();
-	RootFile->Close();
-	RootFile = NULL;
+	    printf("Saving and closing %s\n", RootFile->GetName());
+	    RootFile->Write();
+	    RootFile->Close();
+	    RootFile = NULL;
     }
 /*	Try to open new file	*/
 	if (strlen(getenv("HJET_DAQ")) > 0) {	// Only if a DAQ run
-     if (fname != NULL) {
-	  RootFile = new TFile(fname, "RECREATE");
-	  if (!RootFile->IsOpen()) {
-	    delete RootFile;
-	    RootFile = NULL;
-	  }
-     }
+        if (fname != NULL) {
+	        RootFile = new TFile(fname, "RECREATE");
+	        if (!RootFile->IsOpen()) {
+	            delete RootFile;
+	            RootFile = NULL;
+	        }
+        }
 	}
     if (DataThread != NULL) DataThread->UnLock();
 }
@@ -1121,37 +1062,37 @@ void HJET::ProcessEvent(int chan, longWaveStruct *data)
     NTEvent->time += (data->trt - data->before)*6;
 //	Correct time and bunch number
     if (Config->CSR.split.B120 != 0) {
-	if (NTEvent->time < 0) {
-	    bcorr = (int)((-NTEvent->time) / 45);
-	    bcorr = -bcorr - 1;
-	} else {
-	    bcorr = (int)(NTEvent->time / 45);	// 45 points per 120-mode bunch crossing
-	}
-	NTEvent->bunch += bcorr;	
-	NTEvent->time -= bcorr*45;	    
+	    if (NTEvent->time < 0) {
+	        bcorr = (int)((-NTEvent->time) / 45);
+	        bcorr = -bcorr - 1;
+	    } else {
+	        bcorr = (int)(NTEvent->time / 45);	// 45 points per 120-mode bunch crossing
+	    }
+	    NTEvent->bunch += bcorr;	
+	    NTEvent->time -= bcorr*45;	    
     } else {
-	if (NTEvent->time < 0) {
-	    bcorr = (int)((-NTEvent->time) / 90);	// 90 points per 60-mode bunch crossing
-	    bcorr = -bcorr - 1;	    
-	} else {
-	    bcorr = (int)(NTEvent->time / 90);	// 90 points per 60-mode bunch crossing
-	} 
-	NTEvent->bunch += 2*bcorr;	// only even bunches in 60-bunch mode
-	NTEvent->time -= bcorr*90;
+	    if (NTEvent->time < 0) {
+	        bcorr = (int)((-NTEvent->time) / 90);	// 90 points per 60-mode bunch crossing
+	        bcorr = -bcorr - 1;	    
+	    } else {
+	        bcorr = (int)(NTEvent->time / 90);	// 90 points per 60-mode bunch crossing
+	    } 
+	    NTEvent->bunch += 2*bcorr;	// only even bunches in 60-bunch mode
+	    NTEvent->time -= bcorr*90;
     }
     if (NTEvent->bunch >= 120) {
-	NTEvent->bunch -= 120;
-	NTEvent->rev++;
+	    NTEvent->bunch -= 120;
+	    NTEvent->rev++;
     }
     if (NTEvent->bunch < 0) {
-	NTEvent->bunch += 120;
-	NTEvent->rev--;
+	    NTEvent->bunch += 120;
+	    NTEvent->rev--;
     }    
     if ((chan%16) < 8) {	// yellow pattern
-	NTEvent->bpol = (Beam[0] == NULL) ? 0 : Beam[0]->polarizationFillPatternS[3*NTEvent->bunch];
+	    NTEvent->bpol = (Beam[0] == NULL) ? 0 : Beam[0]->polarizationFillPatternS[3*NTEvent->bunch];
     } else {			// blue pattern
-	NTEvent->bunch = (NTEvent->bunch + BUNCHCORR) % 120;
-	NTEvent->bpol = (Beam[1] == NULL) ? 0 : Beam[1]->polarizationFillPatternS[3*NTEvent->bunch];
+	    NTEvent->bunch = (NTEvent->bunch + BUNCHCORR) % 120;
+	    NTEvent->bpol = (Beam[1] == NULL) ? 0 : Beam[1]->polarizationFillPatternS[3*NTEvent->bunch];
     }
 }
 
@@ -1165,10 +1106,10 @@ int HJET::RecRead(void *buf, size_t len)
     int irc;
     size_t i;
     for(i=0; i<len && StopThread == 0; i+=irc) {
-	irc = fread(&((char *)buf)[i], 1, len-i, DataFile);
-	if (irc < 0) return irc;
-	if (irc == 0 && fQueue[0] != NULL) return 2;
-	if (irc == 0) sleep(1);
+	    irc = fread(&((char *)buf)[i], 1, len-i, DataFile);
+	    if (irc < 0) return irc;
+	    if (irc == 0 && fQueue[0] != NULL) return 2;
+	    if (irc == 0) sleep(1);
     }
     return 1;
 }
@@ -1192,198 +1133,195 @@ void *DataThreadFun(void *arg)
     hjet = (HJET *)arg;
     rec = (ReadBufferStruct *)malloc(BSIZE*sizeof(int));
     if (rec == NULL) {
-	printf("Not enough memory to start thread.\n");
-	return NULL;
+	    printf("Not enough memory to start thread.\n");
+	    return NULL;
     }
     errtot = 0;
 
     for(;; hjet->RecNum++) {
-	i = hjet->RecRead(rec, sizeof(recordHeaderStruct)); 
-	if (hjet->StopThread != 0) break;
-
-	if (i == 2) break;	// EOF found - new file was opened
-	if (i != 1) {
-	    printf("\nHJET-ERR : IO error on input file (head) %m.\n");
-	    continue;
-	}
-
-	if (rec->header.len > (long) (BSIZE*sizeof(int))) {
-	    printf("\nHJET-ERR : Very large record (%d). Skipping...\n", rec->header.len);
-	    for (j=sizeof(recordHeaderStruct); j<rec->header.len; j += i) {
-		k = rec->header.len - j;
-		if (k > (int) (BSIZE*sizeof(int) - sizeof(recordHeaderStruct))) 
-		    k = BSIZE*sizeof(int) - sizeof(recordHeaderStruct);
-		i = hjet->RecRead(rec->data, k); 
-		if (hjet->StopThread != 0 || i != 1) break;
-	    }
+	    i = hjet->RecRead(rec, sizeof(recordHeaderStruct)); 
 	    if (hjet->StopThread != 0) break;
-	    if (i < 1) printf("\nHJET-ERR : IO error on input file (seek) %m.\n");
-	    if (i == 2) break;
-	    continue;
-	}
+
+	    if (i == 2) break;	// EOF found - new file was opened
+	    if (i != 1) {
+	        printf("\nHJET-ERR : IO error on input file (head) %m.\n");
+	        continue;
+	    }
+
+	    if (rec->header.len > (long) (BSIZE*sizeof(int))) {
+	        printf("\nHJET-ERR : Very large record (%d). Skipping...\n", rec->header.len);
+	        for (j=sizeof(recordHeaderStruct); j<rec->header.len; j += i) {
+		        k = rec->header.len - j;
+		        if (k > (int) (BSIZE*sizeof(int) - sizeof(recordHeaderStruct))) k = BSIZE*sizeof(int) - sizeof(recordHeaderStruct);
+		        i = hjet->RecRead(rec->data, k); 
+		        if (hjet->StopThread != 0 || i != 1) break;
+	        }
+	        if (hjet->StopThread != 0) break;
+	        if (i < 1) printf("\nHJET-ERR : IO error on input file (seek) %m.\n");
+	        if (i == 2) break;
+	        continue;
+	    }
 	
-	i = hjet->RecRead(rec->data, rec->header.len - sizeof(recordHeaderStruct));
-	if (hjet->StopThread != 0) break;
+	    i = hjet->RecRead(rec->data, rec->header.len - sizeof(recordHeaderStruct));
+	    if (hjet->StopThread != 0) break;
 
-	if (i == 2) break;	// EOF found - new file was opened
-	if (i != 1) {
-	    printf("\nHJET-ERR : IO error on input file (data) %m.\n");
-	    continue;
-	}
+	    if (i == 2) break;	// EOF found - new file was opened
+	    if (i != 1) {
+	        printf("\nHJET-ERR : IO error on input file (data) %m.\n");
+	        continue;
+	    }
 
-	switch(rec->header.type & REC_TYPEMASK) {
+	    switch(rec->header.type & REC_TYPEMASK) {
 //	RHICCONF - main configuration
-	case REC_RHIC_CONF:
-	    hjet->Config = (configRhicDataStruct *) malloc(rec->header.len - sizeof(recordHeaderStruct));
-	    if (hjet->Config == NULL) {
-		printf("\nHJET-FATAL : No memory.\n");
-		free(rec);
-		fclose(hjet->DataFile);
-		hjet->DataFile = NULL;
-		return NULL;
-	    }
-	    memcpy(hjet->Config, rec->data, rec->header.len - sizeof(recordHeaderStruct));
-	    wfLen = (hjet->Config->JetDelay & 0xFF) * 6;	// waveform length in points
-	    wfDelay = ((hjet->Config->JetDelay >> 8 ) & 0xFF) * 6;// waveform delay in points
+	    case REC_RHIC_CONF:
+	        hjet->Config = (configRhicDataStruct *) malloc(rec->header.len - sizeof(recordHeaderStruct));
+	        if (hjet->Config == NULL) {
+		        printf("\nHJET-FATAL : No memory.\n");
+		        free(rec);
+		        fclose(hjet->DataFile);
+		        hjet->DataFile = NULL;
+		        return NULL;
+	        }
+	        memcpy(hjet->Config, rec->data, rec->header.len - sizeof(recordHeaderStruct));
+	        wfLen = (hjet->Config->JetDelay & 0xFF) * 6;	// waveform length in points
+	        wfDelay = ((hjet->Config->JetDelay >> 8 ) & 0xFF) * 6;// waveform delay in points
 //	    printf("len = %d, delay = %d\n", wfLen, wfDelay);
-	    for (i=0; i<MAXWAVEFORMS; i++) {
-		hjet->Event[i] = (EventStruct *) malloc(sizeof(EventStruct) + wfLen - 1);
-		if (hjet->Event[i] == NULL) {
-		    printf("\nHJET-FATAL : No memory.\n");
-		    free(rec);
-		    fclose(hjet->DataFile);
-		    hjet->DataFile = NULL;
-		    return NULL;
-		}
-	    }
-	    hjet->NTEvent = (EventStruct *) malloc(sizeof(EventStruct) + wfLen - 1);
-	    if (hjet->NTEvent == NULL) {
-		printf("\nHJET-FATAL : No memory.\n");
-		free(rec);
-		fclose(hjet->DataFile);
-		hjet->DataFile = NULL;
-		return NULL;
-	    }
-	    hjet->ReadConfig(hjet->ConfigName);	// override settings if we need
-	    break;
+	        for (i=0; i<MAXWAVEFORMS; i++) {
+		        hjet->Event[i] = (EventStruct *) malloc(sizeof(EventStruct) + wfLen - 1);
+		        if (hjet->Event[i] == NULL) {
+		            printf("\nHJET-FATAL : No memory.\n");
+		            free(rec);
+		            fclose(hjet->DataFile);
+		            hjet->DataFile = NULL;
+		            return NULL;
+		        }
+	        }
+	        hjet->NTEvent = (EventStruct *) malloc(sizeof(EventStruct) + wfLen - 1);
+	        if (hjet->NTEvent == NULL) {
+		        printf("\nHJET-FATAL : No memory.\n");
+		        free(rec);
+		        fclose(hjet->DataFile);
+		        hjet->DataFile = NULL;
+		        return NULL;
+	        }
+	        hjet->ReadConfig(hjet->ConfigName);	// override settings if we need
+	        break;
 //	BEAM data - we shall take beam polarization pattern from here
-	case REC_BEAMADO:
-	    k = 0;
-	    if (rec->header.type & REC_BLUE) k = 1;
-	    hjet->Beam[k] = (beamDataStruct *) malloc(rec->header.len - sizeof(recordHeaderStruct));
-	    if (hjet->Beam[k] == NULL) {
-		printf("\nHJET-FATAL : No memory.\n");
-		free(rec);
-		fclose(hjet->DataFile);
-		hjet->DataFile = NULL;
-		return NULL;
-	    }
-	    memcpy(hjet->Beam[k], rec->data, rec->header.len - sizeof(recordHeaderStruct));
-	    if (k == 0) {
-		str = (char *) malloc(strlen(hjet->Canvas->GetTitle())+20);
-		if (str != NULL) {
-		    sprintf(str, "%s Fill=%d", hjet->Canvas->GetTitle(), hjet->Beam[0]->fillNumberM);
-		    hjet->Canvas->SetTitle(str);
-		    free(str);
-		}
-	    }
-	    break;
+	    case REC_BEAMADO:
+	        k = 0;
+	        if (rec->header.type & REC_BLUE) k = 1;
+	        hjet->Beam[k] = (beamDataStruct *) malloc(rec->header.len - sizeof(recordHeaderStruct));
+	        if (hjet->Beam[k] == NULL) {
+		        printf("\nHJET-FATAL : No memory.\n");
+		        free(rec);
+		        fclose(hjet->DataFile);
+		        hjet->DataFile = NULL;
+		        return NULL;
+	        }
+	        memcpy(hjet->Beam[k], rec->data, rec->header.len - sizeof(recordHeaderStruct));
+	        if (k == 0) {
+		        str = (char *) malloc(strlen(hjet->Canvas->GetTitle())+20);
+		        if (str != NULL) {
+		            sprintf(str, "%s Fill=%d", hjet->Canvas->GetTitle(), hjet->Beam[0]->fillNumberM);
+		            hjet->Canvas->SetTitle(str);
+		            free(str);
+		        }
+	        }
+	        break;
 //	END of file - exit the thread
-	case REC_END:
-	    printf("\nEOF record found. %d events found.", hjet->EventCounter);
-	    if (errtot != 0) printf(" %d format errors.", errtot);
-	    printf("\n");
-	    hjet->ShowStatistics();    // Always call ShowStatistics before PrintRawAsym
-	    hjet->PrintRawAsym();
-	    free(rec);
-	    fclose(hjet->DataFile);
-	    hjet->DataFile = NULL;
-	    hjet->SetFile();   // Save & Close the ROOT file
-	    if (strlen(getenv("HJET_DAQ")) > 0) {	// If not from DAQ, let HJET remain active
-		 exit(0);
-	    }
-        return NULL;
+	    case REC_END:
+	        printf("\nEOF record found. %d events found.", hjet->EventCounter);
+	        if (errtot != 0) printf(" %d format errors.", errtot);
+	        printf("\n");
+	        hjet->ShowStatistics();    // Always call ShowStatistics before PrintRawAsym
+	        hjet->PrintRawAsym();
+	        free(rec);
+	        fclose(hjet->DataFile);
+	        hjet->DataFile = NULL;
+	        hjet->SetFile();   // Save & Close the ROOT file
+	        if (strlen(getenv("HJET_DAQ")) > 0) {	// If not from DAQ, let HJET remain active
+		        exit(0);
+	        }
+            return NULL;
 //	Jet polarization changed
-	case REC_HJETSWITCH:
-	    hjet->JetPol = jet2pol[(((recordHJetSwitchStruct *)rec)->data[0]/JET_PLUS) & 3];
-	    for (j=0; j<MAXWAVEFORMS; j++) if (hjet->Event[j] != NULL) hjet->Event[j]->quality = -1;
-	    j = 0;
-	    break;
+	    case REC_HJETSWITCH:
+	        hjet->JetPol = jet2pol[(((recordHJetSwitchStruct *)rec)->data[0]/JET_PLUS) & 3];
+	        for (j=0; j<MAXWAVEFORMS; j++) if (hjet->Event[j] != NULL) hjet->Event[j]->quality = -1;
+	        j = 0;
+	        break;
 //	Jet and beam positions
-	case REC_HJPOSADO:
-	    memcpy(&hjet->JetPosition, rec->data, rec->header.len - sizeof(recordHeaderStruct));
-	    break;	    
+	    case REC_HJPOSADO:
+	        memcpy(&hjet->JetPosition, rec->data, rec->header.len - sizeof(recordHeaderStruct));
+	        break;	    
 //	carbon polarimeter target state
-	case REC_HJCARBT:
-	    jj = ((recordHJetCarbTargStruct *)rec)->targstat.good;
-	    if (hjet->GoodData && !jj) {
-		printf("\nHJET-INFO : Carbon polarimeter running. Skipping data following event %d\n", hjet->EventCounter);
-	    }
-	    if (!(hjet->GoodData) && jj) {
-		printf("\nHJET-INFO : Resuming data analysis after polarimeter run, event %d\n", hjet->EventCounter);
-	    }
-	    hjet->GoodData = jj;
-	    break;	    
+	    case REC_HJCARBT:
+	        jj = ((recordHJetCarbTargStruct *)rec)->targstat.good;
+	        if (hjet->GoodData && !jj) {
+		        printf("\nHJET-INFO : Carbon polarimeter running. Skipping data following event %d\n", hjet->EventCounter);
+	        }
+	        if (!(hjet->GoodData) && jj) {
+		        printf("\nHJET-INFO : Resuming data analysis after polarimeter run, event %d\n", hjet->EventCounter);
+	        }
+	        hjet->GoodData = jj;
+	        break;	    
 //	Long waveform - data we analyze here
-	case REC_READLONG:
-	    err = 0;
-	    evt = 0;
-	    for (k=0; k < (int)(rec->header.len - sizeof(recordHeaderStruct)); k += subLen) {
-		longWave = (recordLongWaveStruct *) &rec->data[k];
-		subLen = sizeof(subheadStruct) + 
-		    (longWave->subhead.Events + 1)*(sizeof(longWaveStruct) - 1 + wfLen);
-		if (k + subLen > rec->header.len - sizeof(recordHeaderStruct)) {
-		    printf("\nHJET-WARN : record %d format error %d + %d + 16 %d. Skipping...\n",
-			hjet->RecNum, k, subLen, rec->header.len);
-		    break;
-		}
-		for(i=0; i<=(int)longWave->subhead.Events; i++) {
-		    Event = (longWaveStruct *) &longWave->data[i*(sizeof(longWaveStruct) - 1 + wfLen)];
-		    if (Event->before != wfDelay/6 || Event->length != wfLen/6) {
-			err++;
-			if (err < 20 && errtot < 100) {
-			    printf("\nHJET-WARN : Si %d, event %d(%d) fixed parameters error %d %d %d %d. Skipping...\n",
-				longWave->subhead.siNum, i+1, hjet->EventCounter, Event->before, wfDelay/6, 
-				Event->length, wfLen/6);
-			    printf("Dump: ");
-			    for(int ii=0; ii < (int)wfLen + 6; ii++) printf("%2.2X ", 0xFF & ((char *)Event)[ii]);
-			    printf("\n");
-			}
-			continue;
-		    }
-		    if (hjet->GoodData) {
-			hjet->ProcessEvent(longWave->subhead.siNum, Event);
-			hjet->FillEvent();
-		    }
-		    if (j < MAXWAVEFORMS && 
-			(hjet->SelectChan == 0 || hjet->SelectChan == hjet->NTEvent->chan + 1)) {
-			memcpy(hjet->Event[j], hjet->NTEvent, sizeof(EventStruct) + wfLen - 1);
-			j++;
-		    }
-		    hjet->EventCounter++;
-		    evt++;
-		}
-	    }
-	    if (err != 0) printf("Record %d had %d errors for %d good events!\n", hjet->RecNum, err, evt);
-	    errtot += err;
-	    break;
+	    case REC_READLONG:
+	        err = 0;
+	        evt = 0;
+	        for (k=0; k < (int)(rec->header.len - sizeof(recordHeaderStruct)); k += subLen) {
+		        longWave = (recordLongWaveStruct *) &rec->data[k];
+		        subLen = sizeof(subheadStruct) + (longWave->subhead.Events + 1)*(sizeof(longWaveStruct) - 1 + wfLen);
+		        if (k + subLen > rec->header.len - sizeof(recordHeaderStruct)) {
+		            printf("\nHJET-WARN : record %d format error %d + %d + 16 %d. Skipping...\n",
+			        hjet->RecNum, k, subLen, rec->header.len);
+		            break;
+		        }
+		        for(i=0; i<=(int)longWave->subhead.Events; i++) {
+		            Event = (longWaveStruct *) &longWave->data[i*(sizeof(longWaveStruct) - 1 + wfLen)];
+		            if (Event->before != wfDelay/6 || Event->length != wfLen/6) {
+			            err++;
+			            if (err < 20 && errtot < 100) {
+			                printf("\nHJET-WARN : Si %d, event %d(%d) fixed parameters error %d %d %d %d. Skipping...\n",
+				            longWave->subhead.siNum, i+1, hjet->EventCounter, Event->before, wfDelay/6, 
+				            Event->length, wfLen/6);
+			                printf("Dump: ");
+			                for(int ii=0; ii < (int)wfLen + 6; ii++) printf("%2.2X ", 0xFF & ((char *)Event)[ii]);
+			                printf("\n");
+			            }
+			            continue;
+		            }
+		            if (hjet->GoodData) {
+			            hjet->ProcessEvent(longWave->subhead.siNum, Event);
+			            hjet->FillEvent();
+		            }
+		            if (j < MAXWAVEFORMS && (hjet->SelectChan == 0 || hjet->SelectChan == hjet->NTEvent->chan + 1)) {
+			            memcpy(hjet->Event[j], hjet->NTEvent, sizeof(EventStruct) + wfLen - 1);
+			            j++;
+		            }
+		            hjet->EventCounter++;
+		            evt++;
+		        }
+	        }
+	        if (err != 0) printf("Record %d had %d errors for %d good events!\n", hjet->RecNum, err, evt);
+	        errtot += err;
+	        break;
 //		We don't analyze these records
-	case REC_BEGIN:	
-	case REC_POLADO:
-	case REC_TAGADO:
-	case REC_READALL:
-	case REC_READRAW:
-	case REC_READSUB:
-	case REC_READAT:
-	case REC_WFDV8SCAL:
-	case REC_SCALERS:
-	case REC_PCTARGET:
-	case REC_WCMADO:
-	    break;
-	default:	// skip any unknown records
+	    case REC_BEGIN:	
+	    case REC_POLADO:
+	    case REC_TAGADO:
+	    case REC_READALL:
+	    case REC_READRAW:
+	    case REC_READSUB:
+	    case REC_READAT:
+	    case REC_WFDV8SCAL:
+	    case REC_SCALERS:
+	    case REC_PCTARGET:
+	    case REC_WCMADO:
+	        break;
+	    default:	// skip any unknown records
 //	    printf("\nUnknown record %8.8X encountered in input data file\n", rec->header.type & REC_TYPEMASK);
-	    break;
-	}
+	        break;
+	    }
     }
     free(rec);
     fclose(hjet->DataFile);
@@ -1391,7 +1329,7 @@ void *DataThreadFun(void *arg)
     hjet->SetFile();   // Save & Close the ROOT file
 //    exit(0);
 	if (strlen(getenv("HJET_DAQ")) > 0) {	// If not from DAQ, let HJET remain active
-	 exit(0);
+	    exit(0);
 	}
     return NULL;
 }
@@ -1399,12 +1337,13 @@ void *DataThreadFun(void *arg)
 // Routine to trap Kill signal and close ROOT file.
 void signalHandler(int sig)
 {
- if (sig == SIGINT || sig == SIGKILL || sig == SIGTERM) {
-  printf("Received termination signal %d\n", sig);
- }
- hjet->ShowStatistics();    // Always call ShowStatistics before PrintRawAsym
- hjet->PrintRawAsym();
- hjet->SetFile();
- printf("Closed ROOT file, now terminating\n");
- exit(0);
+    if (sig == SIGINT || sig == SIGKILL || sig == SIGTERM) {
+        printf("Received termination signal %d\n", sig);
+    }
+    hjet->ShowStatistics();    // Always call ShowStatistics before PrintRawAsym
+    hjet->PrintRawAsym();
+    hjet->SetFile();
+    printf("Closed ROOT file, now terminating\n");
+    exit(0);
 }
+

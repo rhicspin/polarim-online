@@ -12,7 +12,6 @@
     bar->AddButton("Recoiled Mass", "hjet->DrawSet(\"R1\");", "Draw recoiled mass histograms.");
     bar->AddButton("Missing Mass", "hjet->DrawSet(\"M1\");", "Draw missing mass squared histograms.");
     bar->AddButton("ATDET", "hjet->DrawSet(\"D1\");", "Draw Ekin-TOF histograms for whole detectotrs.");
-    bar->AddButton("ATDET Y/B", "hjet->DrawSet(\"F1\");", "Draw Ekin-TOF histograms for half detectotrs.");
     bar->AddButton("APOS", "hjet->DrawSet(\"A1\");", "Draw Ekin-angle histograms.");
     bar->AddButton("Yellow", "hjet->DrawSet(\"Y1\");", "Draw Yellow good event bunch distribution.");
     bar->AddButton("Blue", "hjet->DrawSet(\"B1\");", "Draw Blue good event bunch distribution.");
