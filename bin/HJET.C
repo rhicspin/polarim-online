@@ -107,7 +107,6 @@ HJET::HJET(char *fname) : TNamed("HJET", "Hydrogen Jet Online Data")
     memset(HMM, 0, sizeof(HMM));
     memset(HADC, 0, sizeof(HADC));
     memset(HATDET, 0, sizeof(HATDET));
-//	memset(HATDYB, 0, sizeof(HATDYB));
     memset(HANDET, 0, sizeof(HANDET));
 
     HSTRIP[0] = new TH1F("HSTRIPY", "Good events in strips distribution", MAXSICHAN, 0, MAXSICHAN);
@@ -194,8 +193,6 @@ HJET::~HJET(void)
     for(i=0; i<MAXSICHAN; i++) if (HMM[i] != NULL) delete HMM[i];
     for(i=0; i<MAXSICHAN; i++) if (HADC[i] != NULL) delete HADC[i];
     for(i=0; i<DETECTORS; i++) if (HATDET[i] != NULL) delete HATDET[i];
-//    for(i=0; i<DETECTORS; i++) if (HATDYB[0][i] != NULL) delete HATDYB[0][i];
-//    for(i=0; i<DETECTORS; i++) if (HATDYB[1][i] != NULL) delete HATDYB[1][i];
     for(i=0; i<DETECTORS; i++) if (HANDET[i] != NULL) delete HANDET[i];
     for(i=0; i<sizeof(HE)/sizeof(TH1D *); i++) delete HE[i];
     delete HQ;
@@ -248,8 +245,6 @@ void HJET::Save(char *fname)
     for(i=0; i<DETECTORS; i++) {
 	    if (HATDET[i] != NULL) HATDET[i]->Write();
 	    if (HANDET[i] != NULL) HANDET[i]->Write();
-//	    if (HATDYB[0][i] != NULL) HATDYB[0][i]->Write();
-//	    if (HATDYB[1][i] != NULL) HATDYB[1][i]->Write();
     }
     for(i=0; i < sizeof(HE)/sizeof(TH1D *); i++) HE[i]->Write();
     HBUNCH[0]->Write();
@@ -763,7 +758,7 @@ TTree *HJET::CreateTree(int chan)
     TTree *t;
     char strs[10], strl[100];
     sprintf(strs, "HJtree%d", chan+1);
-    sprintf(strl, "Hydrogen jet event tree Si%d", chan+1);
+    sprintf(strl, "Hydrogen jet event tree Si%d (%s.%d)", chan+1, DetName(chan), Chan2Strip(chan)+1);
     RootFile->cd();		// in root-file
     t = new TTree(strs, strl);
 //    t->Branch("Events", &NTEvent->rev, "R/I3:B/I1:BPOL/I1:JPOL/I1:T/F:A/F:Q/F:E/F:TOF/F:M/F:ANG/F:MM/F:W[192]/I");
@@ -779,7 +774,7 @@ TH2F *HJET::CreateHistAT(int chan)
     int amax, tmax;
     
     sprintf(strs, "HAT%d", chan+1);
-    sprintf(strl, "Hydrogen jet Time versus Amplitude Si%d", chan+1);
+    sprintf(strl, "Hydrogen jet Time versus Amplitude Si%d (%s.%d)", chan+1, DetName(chan), Chan2Strip(chan)+1);
     amax = 256 - V10BASELINE;
     tmax = (2 - Config->CSR.split.B120)*45;	// maximum time: 45/90 for 60/120 bunch mode
 //    gROOT->cd();		// in memory
@@ -796,7 +791,7 @@ TH1F *HJET::CreateHistM(int chan)
     char strs[10], strl[100];
     
     sprintf(strs, "HM%d", chan+1);
-    sprintf(strl, "Recoiled mass Si%d", chan+1);
+    sprintf(strl, "Recoiled mass Si%d (%s.%d)", chan+1, DetName(chan), Chan2Strip(chan)+1);
 //    gROOT->cd();		// in memory
     h = new TH1F(strs, strl, 100, 0, 5);	// 0-5 GeV
     h->GetXaxis()->SetTitle("GeV");
@@ -811,7 +806,7 @@ TH1F *HJET::CreateHistMM(int chan)
     char strs[10], strl[100];
     
     sprintf(strs, "HMM%d", chan+1);
-    sprintf(strl, "Missing mass squared Si%d", chan+1);
+    sprintf(strl, "Missing mass squared Si%d (%s.%d)", chan+1, DetName(chan), Chan2Strip(chan)+1);
 //    gROOT->cd();		// in memory
     h = new TH1F(strs, strl, 100, 0, 2);	// 0-2 GeV
     h->GetXaxis()->SetTitle("GeV^{2}");
@@ -862,12 +857,8 @@ TH1F *HJET::CreateHistC(int chan)
     TH1F *h;
     char strs[10], strl[100];
     
-    int nchan = chan + 1;
-    int ndet = Chan2Det(chan) + 1;
-    int nstrip = Chan2Strip(chan) + 1;
-    
-    sprintf(strs, "HADC%d", nchan);
-    sprintf(strl, "ADC Events Si%d (Det %d Strip %d)", nchan, ndet, nstrip);
+    sprintf(strs, "HADC%d", chan+1);
+    sprintf(strl, "ADC Events Si%d  (%s.%d)", chan+1, DetName(chan), Chan2Strip(chan)+1);
 //    gROOT->cd();		// in memory
     h = new TH1F(strs, strl, 256, 0, 256);  // Full range
     h->GetXaxis()->SetTitle("ADC Channel");
@@ -1007,6 +998,7 @@ void HJET::SetFile(char *fname)
     int i;
     if (DataThread != NULL) DataThread->Lock();
     if (RootFile != NULL) {
+        RootFile->cd();
 /*	Save and close n-tuples	*/
 	    for(i=0; i<MAXSICHAN; i++) if (NT[i] != NULL) {
 	        NT[i]->Write();
@@ -1014,6 +1006,16 @@ void HJET::SetFile(char *fname)
 	        NT[i] = NULL;
 	    }
 
+        for(i=0; i<MAXSICHAN; i++) {
+	        if (HAT[i] != NULL) HAT[i]->Write();
+	        if (HM[i] != NULL) HM[i]->Write();
+	        if (HMM[i] != NULL) HMM[i]->Write();
+            if (HADC[i] != NULL) HADC[i]->Write();
+        }
+        for(i=0; i<DETECTORS; i++) {
+	        if (HATDET[i] != NULL) HATDET[i]->Write();
+	        if (HANDET[i] != NULL) HANDET[i]->Write();
+        }
         for(i=0; i < floor(sizeof(HE)/sizeof(TH1D *)); i++) HE[i]->Write();
         HBUNCH[0]->Write();
         HBUNCH[1]->Write();

@@ -34,7 +34,7 @@
 #define SIPITCH		0.375		// pitch, cm
 #define SI1Z		1.085		// 1st strip from flange center, cm
 #define STPERDET	12		    // strips per detector
-#define EMAX4HIST   20000.0     // keV
+#define EMAX4HIST   8000.0     // keV
 
 typedef struct {
     int chan;			// Channel number

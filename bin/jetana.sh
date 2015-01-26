@@ -7,7 +7,7 @@ RUN=$1
 
 export HJET_ROOTFILE="$POLSTORE/root/"$RUN".root"
 export HJET_DATAFILE="$POLSTORE/data/"$RUN".data"
-export HJET_DAQ=""
+export HJET_DAQ=$3
 
 export HJET_CALIB="${POLCONF}/calib_${2:-1403.904}.dat"  # Run13
 if [ "x"$1 == "x" ] ; then 
