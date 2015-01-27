@@ -418,7 +418,7 @@ void HJET::Draw(Option_t *what)
 	        HATDET[j]->Draw("color");
 	        CutTOF->Draw(1);
 	        CutEkin->Draw(0);
-	        sprintf(str, "%f/sqrt(x)", 22.8*Config->TOFLength);
+	        sprintf(str, "%f/sqrt(x)", 22.8*Config->chan[j].TOFLength);
 	        if (Banana == NULL) Banana = new TF1("Banana", str, 0, EMAX4HIST);
 	        Banana->SetLineColor(3);
 	        Banana->SetLineWidth(2);
@@ -427,13 +427,13 @@ void HJET::Draw(Option_t *what)
 // Plot the mass cut ranges...
 		    CutRmass->Get(&massCut_min, &massCut_max);
 		
-		    sprintf(str, "%f/sqrt(x)", factor*sqrt(massCut_min)*Config->TOFLength);
+		    sprintf(str, "%f/sqrt(x)", factor*sqrt(massCut_min)*Config->chan[j].TOFLength);
 		    if (MassCutMin == NULL) MassCutMin = new TF1("MassCutMin", str, 0, EMAX4HIST);
 		    MassCutMin->SetLineColor(kRed);
 		    MassCutMin->SetLineWidth(2);
 		    MassCutMin->Draw("same");
 		
-		    sprintf(str, "%f/sqrt(x)", factor*sqrt(massCut_max)*Config->TOFLength);
+		    sprintf(str, "%f/sqrt(x)", factor*sqrt(massCut_max)*Config->chan[j].TOFLength);
 		    if (MassCutMax == NULL) MassCutMax = new TF1("MassCutMax", str, 0, EMAX4HIST);
 		    MassCutMax->SetLineColor(kRed);
 		    MassCutMax->SetLineWidth(2);
@@ -842,7 +842,7 @@ TH2F *HJET::CreateHistANDet(int det)
     sprintf(strl, "Hydrogen jet Energy versus angle Det%d (%s)", det+1, Geometry[det].name);
     // angmax = 3.78/Config->TOFLength;
     // h = new TH2F(strs, strl, 17, -angmax, angmax, 50, 0, 6000);
-    angmax = 6/Config->TOFLength;
+    angmax = MAXDETZ / Config->chan[0].TOFLength;
     h = new TH2F(strs, strl, 40, -angmax, angmax, 50, 0, EMAX4HIST);
     h->GetXaxis()->SetTitle("rad");
     h->GetYaxis()->SetTitle("E_{kin}, keV");
@@ -897,10 +897,11 @@ void HJET::FillEvent()
     NTEvent->ekin = Config->chan[NTEvent->chan].ecoef * NTEvent->ampl;              // !! No idea of passing through particles here
     NTEvent->ekin += energy_loss(NTEvent->ekin)*Config->chan[NTEvent->chan].edead;	// dead layer correction
     NTEvent->tof = NTEvent->time*Config->WFDTUnit - Config->chan[NTEvent->chan].t0 + TimeCorr;
-    beta = Config->TOFLength / (c*NTEvent->tof);
+    beta = Config->chan[NTEvent->chan].TOFLength / (c*NTEvent->tof);
+//    printf("beta = %g, len = %g tof = %g\n", beta, Config->TOFLength, NTEvent->tof);
     NTEvent->rmass = 2.0E-6*NTEvent->ekin / (beta*beta);
-    NTEvent->angle = StripZ(NTEvent->chan) / Config->TOFLength;
-    NTEvent->angle += ((Chan2IO(NTEvent->chan)) ? 1. : -1.)*angcorr/(sqrt(2*M*NTEvent->ekin)*Config->TOFLength);// magnetic field
+    NTEvent->angle = StripZ(NTEvent->chan) / Config->chan[NTEvent->chan].TOFLength;
+    NTEvent->angle += ((Chan2IO(NTEvent->chan)) ? 1. : -1.)*angcorr/(sqrt(2*M*NTEvent->ekin)*Config->chan[NTEvent->chan].TOFLength);// magnetic field
 // approximation: not relativistic for recoiled
     NTEvent->mmass2 = M*M - 2.0E-6*(M+E)*NTEvent->ekin + 2*sqrt(E*E-M*M)*sqrt(2.0E-6*M*NTEvent->ekin)*fabs(sin(NTEvent->angle));
 

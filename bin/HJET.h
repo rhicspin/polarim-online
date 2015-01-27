@@ -20,8 +20,6 @@
 #include <TTimer.h>
 #include "../include/rhicpol.h"
 #include "../include/rpoldata.h"
-//#include "rhicpol_old.h"
-//#include "rpoldata_old.h"
 #include "HCut.h"
 
 #define MAXWAVEFORMS	100
@@ -35,6 +33,7 @@
 #define SI1Z		1.085		// 1st strip from flange center, cm
 #define STPERDET	12		    // strips per detector
 #define EMAX4HIST   8000.0     // keV
+#define MAXDETZ     (SI1Z + (STPERDET-1)*SIPITCH)
 
 typedef struct {
     int chan;			// Channel number
