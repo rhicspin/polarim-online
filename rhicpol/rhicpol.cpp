@@ -262,6 +262,8 @@ int main(int argc, char **argv)
       fprintf(LogFile, "RHICPOL-WARN : No CDEV environment found.\n");
       fprintf(LogFile, "               Run may be unusable. Try -g to suppress this message.\n");
       polData.statusS |= WARN_INT;
+   } else {
+      cdevCnsInit();      
    }
 
    rhicpol_process_options();
@@ -273,8 +275,7 @@ int main(int argc, char **argv)
    // Make recRing
    if (iCicleRun) {    // for HJET
       recRing = REC_JET | REC_YELLOW; // jet has always yellow color
-   }
-   else {
+   } else {
       if (gUseCdev && DeviceName[0] == 'N') {       // we MUST have device name for CDEV when not in jet mode
          fprintf(LogFile, "RHICPOL-INFO : no device name for CDEV. Disabling CDEV\n");
          polData.statusS |= (WARN_INT);
@@ -290,7 +291,6 @@ int main(int argc, char **argv)
 
    // Get beam energy from CDEV
    if (gUseCdev) {
-      cdevCnsInit();
       getCdevInfoBeamData(&beamData);
       fprintf(LogFile, "RHICPOL-INFO : Beam energy updated from CDEV beamData::beamEnergyM = %f\n", beamData.beamEnergyM);
 
