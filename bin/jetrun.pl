@@ -19,6 +19,13 @@ if ($_ eq "D") {
 	$DEBUG = 1;
 }
 
+$isrunning=`ps -e | grep jetrun.pl | wc -l`;
+if ($isrunning > 1) {
+	$isrunning=`ps -e | grep jetrun.pl`;
+	print "Already running:\n", $isrunning;
+	exit;
+}
+
 # 400 = 2006, 2007
 # 500 = 2008
 # 600 = 2009

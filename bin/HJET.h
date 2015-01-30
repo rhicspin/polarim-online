@@ -27,7 +27,7 @@
 #define MAXQUEUE	100
 #define LINEPOINTS	6
 #define DETECTORS	8		    // number of detectors
-#define BUNCHCORR	40 		    // RUN6 80, RUN8 40 Hiromi Feb. 25, 2008
+#define BUNCHCORR	80 		    // RUN6 80, RUN8 40 Hiromi Feb. 25, 2008
 #define LARGE_VALUE	(1.0E50)
 #define SIPITCH		0.375		// pitch, cm
 #define SI1Z		1.085		// 1st strip from flange center, cm

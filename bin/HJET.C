@@ -402,6 +402,8 @@ void HJET::Draw(Option_t *what)
 	    break;
     case 'B':	// Blue bunches
 	    HBUNCH[1]->Draw();
+//        for (j=0; j<360; j+=3) printf("%1.1d", Beam[0]->measuredFillPatternM[j]);
+//        printf("\n");
 	    break;
 	case 'C':      // ADC histograms
 	    j = (strtol(&what[1], NULL, 0)-1) % MAXSICHAN;
@@ -521,6 +523,8 @@ void HJET::Draw(Option_t *what)
 	    break;
     case 'Y':	// yellow bunches
 	    HBUNCH[0]->Draw();
+//        for (j=0; j<360; j+=3) printf("%1.1d", Beam[1]->measuredFillPatternM[j]);
+//        printf("\n");
 	    break;
     }
     if (DataThread != NULL) DataThread->UnLock();
@@ -841,9 +845,9 @@ TH2F *HJET::CreateHistANDet(int det)
     sprintf(strs, "HANDET%d", det+1);
     sprintf(strl, "Hydrogen jet Energy versus angle Det%d (%s)", det+1, Geometry[det].name);
     // angmax = 3.78/Config->TOFLength;
-    // h = new TH2F(strs, strl, 17, -angmax, angmax, 50, 0, 6000);
+    // h = new TH2F(strs, strl, 30, 0, angmax, 50, 0, 6000);
     angmax = MAXDETZ / Config->chan[0].TOFLength;
-    h = new TH2F(strs, strl, 40, -angmax, angmax, 50, 0, EMAX4HIST);
+    h = new TH2F(strs, strl, 30, 0, angmax, 50, 0, EMAX4HIST);
     h->GetXaxis()->SetTitle("rad");
     h->GetYaxis()->SetTitle("E_{kin}, keV");
     h->SetFillColor(4);
@@ -1091,10 +1095,10 @@ void HJET::ProcessEvent(int chan, longWaveStruct *data)
 	    NTEvent->bunch += 120;
 	    NTEvent->rev--;
     }    
-    if ((chan%16) < 8) {	// yellow pattern
+    if (Chan2Ring(chan)) {	// yellow pattern
+	    NTEvent->bunch = (NTEvent->bunch + BUNCHCORR) % 120;
 	    NTEvent->bpol = (Beam[0] == NULL) ? 0 : Beam[0]->polarizationFillPatternS[3*NTEvent->bunch];
     } else {			// blue pattern
-	    NTEvent->bunch = (NTEvent->bunch + BUNCHCORR) % 120;
 	    NTEvent->bpol = (Beam[1] == NULL) ? 0 : Beam[1]->polarizationFillPatternS[3*NTEvent->bunch];
     }
 }
@@ -1255,6 +1259,9 @@ void *DataThreadFun(void *arg)
 //	Jet and beam positions
 	    case REC_HJPOSADO:
 	        memcpy(&hjet->JetPosition, rec->data, rec->header.len - sizeof(recordHeaderStruct));
+//            printf("INFO-JetPosition: JET(%d) BLUE(%d, %d) YELLOW(%d, %d)\n", hjet->JetPosition.jetAbsolutePosition,
+//                (hjet->JetPosition.rbpm[0] + hjet->JetPosition.rbpm[1])/2, (hjet->JetPosition.rbpm[2] + hjet->JetPosition.rbpm[3])/2, 
+//                (hjet->JetPosition.rbpm[4] + hjet->JetPosition.rbpm[5])/2, (hjet->JetPosition.rbpm[6] + hjet->JetPosition.rbpm[7])/2);
 	        break;	    
 //	carbon polarimeter target state
 	    case REC_HJCARBT:
