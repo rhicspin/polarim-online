@@ -9,7 +9,7 @@ export HJET_ROOTFILE="$POLSTORE/root/"$RUN".root"
 export HJET_DATAFILE="$POLSTORE/data/"$RUN".data"
 export HJET_DAQ=$3
 
-export HJET_CALIB="${POLCONF}/calib_${2:-1403.904}.dat"  # Run13
+export HJET_CALIB="${POLCONF}/calib_${2:-j18544.005}.dat"  # Run15
 if [ "x"$1 == "x" ] ; then 
     echo "Usage: ./jetanal.sh <RUN> [<CALIB>]"
 else

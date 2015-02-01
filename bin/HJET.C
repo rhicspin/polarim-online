@@ -27,7 +27,7 @@ const struct DetectorGeometryStruct {
     {0, 0, 0, 0, "IBU"}, 
     {1, 1, 1, 1, "OYD"}, 
     {0, 1, 1, 0, "OYU"}, 
-    {0, 0, 1, 0, "OBU"}, 
+    {1, 0, 1, 0, "OBU"}, 
     {0, 0, 1, 1, "OBD"},
     {0, 0, 0, 0, "XXX"}};
 
@@ -109,14 +109,14 @@ HJET::HJET(char *fname) : TNamed("HJET", "Hydrogen Jet Online Data")
     memset(HATDET, 0, sizeof(HATDET));
     memset(HANDET, 0, sizeof(HANDET));
 
-    HSTRIP[0] = new TH1F("HSTRIPY", "Good events in strips distribution", MAXSICHAN, 0, MAXSICHAN);
-    HSTRIP[0]->GetXaxis()->SetTitle("Ch");
-    HSTRIP[0]->GetYaxis()->SetTitle("N_{evt}");
-    HSTRIP[0]->SetFillColor(kOrange-2);
-    HSTRIP[1] = new TH1F("HSTRIPB", "Good events in strips distribution", MAXSICHAN, 0, MAXSICHAN);
+    HSTRIP[1] = new TH1F("HSTRIPY", "Good events in strips distribution", MAXSICHAN, 0, MAXSICHAN);
     HSTRIP[1]->GetXaxis()->SetTitle("Ch");
     HSTRIP[1]->GetYaxis()->SetTitle("N_{evt}");
-    HSTRIP[1]->SetFillColor(kBlue);		// kBlue = 4
+    HSTRIP[1]->SetFillColor(kOrange-2);
+    HSTRIP[0] = new TH1F("HSTRIPB", "Good events in strips distribution", MAXSICHAN, 0, MAXSICHAN);
+    HSTRIP[0]->GetXaxis()->SetTitle("Ch");
+    HSTRIP[0]->GetYaxis()->SetTitle("N_{evt}");
+    HSTRIP[0]->SetFillColor(kBlue);		// kBlue = 4
     HSTRIP[2] = new TH1F("HSTRIP", "Good events in strips distribution", MAXSICHAN, 0, MAXSICHAN);
     HSTRIP[2]->GetXaxis()->SetTitle("Ch");
     HSTRIP[2]->GetYaxis()->SetTitle("N_{evt}");

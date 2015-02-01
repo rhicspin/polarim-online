@@ -818,6 +818,11 @@ c Bunch per bunch polarizations - given bunch versus sum of all
      ,			assy45, eassy45)
 		write(str, *) 'Bunch', i
 		print 100, str, 2*assx90, 2*eassx90, 2*assx45, 2*eassx45, 2*assy45, 2*eassy45
+c	01.02.2015 - moved to sqrt asymmetries here
+		bunchAsymXS(3*i-2) = 2*assx45
+		bunchAsymErrorXS(3*i-2) = 2*eassx45
+		bunchAsymYS(3*i-2) = 2*assy45
+		bunchAsymErrorYS(3*i-2) = 2*eassy45
 	    endif
 	enddo	
 
@@ -854,13 +859,14 @@ c We suppress 90-degree test detectors if requested
 	    call lssqrbasym(bassX, bassY, ebassX, ebassY)
 	    do i=1,120
 		write(str, *) 'Bunch', i
-		bunchAsymXS(3*i-2) = bassX(i)
-		bunchAsymErrorXS(3*i-2) = ebassX(i)
+c	01.02.2015 - moved to sqrt asymmetries
+c		bunchAsymXS(3*i-2) = bassX(i)
+c		bunchAsymErrorXS(3*i-2) = ebassX(i)
 		print 100, str, bassX(i), ebassX(i)
 
 		write(str, *) 'Bunch', i
-		bunchAsymYS(3*i-2) = bassY(i)
-		bunchAsymErrorYS(3*i-2) = ebassY(i)
+c		bunchAsymYS(3*i-2) = bassY(i)
+c		bunchAsymErrorYS(3*i-2) = ebassY(i)
 		print 100, str, bassY(i), ebassY(i)
 	    enddo
 	endif
