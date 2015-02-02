@@ -64,7 +64,7 @@ private:
     int RecNum;			// current record number
     int EventCounter;		// current event counter
     TCanvas *Canvas;		// our window
-	TCanvas *CanvYB;			// for Y/B stacked plot
+//	TCanvas *CanvYB;			// for Y/B stacked plot
     TFile *RootFile;		// file to write output n-tuple.
     EventStruct *Event[MAXWAVEFORMS];	// Waveforms to be shown
     EventStruct *NTEvent;	// event to be saved in n-tuple.

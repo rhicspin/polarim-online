@@ -9,9 +9,12 @@
 #include <TH1F.h>
 #include <TF1.h>
 #include <TLine.h>
+#include <TROOT.h>
 #include <TStyle.h>
 #include <TGraph.h>
 #include "HJET.h"
+
+//  Everywhere in this file BLUE ring is 0 and YELLOW = 1
 
 const struct DetectorGeometryStruct {
     int sig;	// channels are numbered from the center sig=0 / from the edge sig=1
@@ -109,26 +112,26 @@ HJET::HJET(char *fname) : TNamed("HJET", "Hydrogen Jet Online Data")
     memset(HATDET, 0, sizeof(HATDET));
     memset(HANDET, 0, sizeof(HANDET));
 
-    HSTRIP[1] = new TH1F("HSTRIPY", "Good events in strips distribution", MAXSICHAN, 0, MAXSICHAN);
-    HSTRIP[1]->GetXaxis()->SetTitle("Ch");
-    HSTRIP[1]->GetYaxis()->SetTitle("N_{evt}");
-    HSTRIP[1]->SetFillColor(kOrange-2);
     HSTRIP[0] = new TH1F("HSTRIPB", "Good events in strips distribution", MAXSICHAN, 0, MAXSICHAN);
     HSTRIP[0]->GetXaxis()->SetTitle("Ch");
     HSTRIP[0]->GetYaxis()->SetTitle("N_{evt}");
     HSTRIP[0]->SetFillColor(kBlue);		// kBlue = 4
+    HSTRIP[1] = new TH1F("HSTRIPY", "Good events in strips distribution", MAXSICHAN, 0, MAXSICHAN);
+    HSTRIP[1]->GetXaxis()->SetTitle("Ch");
+    HSTRIP[1]->GetYaxis()->SetTitle("N_{evt}");
+    HSTRIP[1]->SetFillColor(kOrange-2);
     HSTRIP[2] = new TH1F("HSTRIP", "Good events in strips distribution", MAXSICHAN, 0, MAXSICHAN);
     HSTRIP[2]->GetXaxis()->SetTitle("Ch");
     HSTRIP[2]->GetYaxis()->SetTitle("N_{evt}");
 
-    HBUNCH[0] = new TH1F("HBUNCHY", "Good events per bunch crossing, YELLOW beam", 120, 0, 120);
-    HBUNCH[0]->SetFillColor(kOrange-2);
-    HBUNCH[1] = new TH1F("HBUNCHB", "Good events per bunch crossing, BLUE beam", 120, 0, 120);
-    HBUNCH[1]->SetFillColor(kBlue);
-    HBUNCH[0]->GetXaxis()->SetTitle("Yellow bunch number");
-    HBUNCH[1]->GetXaxis()->SetTitle("Blue bunch number");
+    HBUNCH[0] = new TH1F("HBUNCHB", "Good events per bunch crossing, BLUE beam", 120, 0, 120);
+    HBUNCH[0]->SetFillColor(kBlue);
+    HBUNCH[0]->GetXaxis()->SetTitle("Blue bunch number");
     HBUNCH[0]->GetYaxis()->SetTitle("Number of events");
+    HBUNCH[1] = new TH1F("HBUNCHY", "Good events per bunch crossing, YELLOW beam", 120, 0, 120);
+    HBUNCH[1]->SetFillColor(kOrange-2);
     HBUNCH[1]->GetYaxis()->SetTitle("Number of events");
+    HBUNCH[1]->GetXaxis()->SetTitle("Yellow bunch number");
     HE[0]  = new TH1D("HEYJNL", "Good events energy distribution, Yellow,  Jet negative,  left", 200, 0, EMAX4HIST);
     HE[1]  = new TH1D("HEYJNR", "Good events energy distribution, Yellow,  Jet negative, right", 200, 0, EMAX4HIST);
     HE[2]  = new TH1D("HEYJPL", "Good events energy distribution, Yellow,  Jet positive,  left", 200, 0, EMAX4HIST);
@@ -158,7 +161,7 @@ HJET::HJET(char *fname) : TNamed("HJET", "Hydrogen Jet Online Data")
     MassCutMax = NULL;
     Parabola = NULL;
     Canvas = NULL;
-	CanvYB = NULL;
+//	CanvYB = NULL;
     RootFile = NULL;
     strcpy(DrawWhat, "W1");
     SelectChan = 0;
@@ -320,8 +323,9 @@ void HJET::Open(char *fname)
 	    printf("Can not open file %s : %m.\n", fname);
 	    return;
     }
+    Canvas = (TCanvas *) gROOT->FindObject("cvHJET");
     if (Canvas == NULL) {
-	    Canvas = new TCanvas("cvHJET", fname, 102, 0, 650, 480);
+	    Canvas = new TCanvas("cvHJET", fname, 102, 0, 800, 600);
     } else {
 	    Canvas->SetTitle(fname);
     }
@@ -374,16 +378,18 @@ void HJET::Draw(Option_t *what)
 	double factor = 23.58654;	// sqrt(1e6/(2*29.98 cm/ns))
     TLine l;
     TF1 *f;
-    
+
+    Canvas = (TCanvas *) gROOT->FindObject("cvHJET");
     if (Canvas == NULL) {
-	    printf("\nNo Canvas !!!\n");
-	    return;
+	    Canvas = new TCanvas("cvHJET", "HJET", 102, 0, 800, 600);
     }
+    
     Canvas->cd();
     Canvas->SetLogz(0);
     l.SetLineColor(3);
     l.SetLineWidth(2);    
     gStyle->SetOptFit();
+    gStyle->SetOptStat(10);
     if (DataThread != NULL) DataThread->Lock();
     switch(toupper(what[0])) {
     case 'A':	// Detecor A-angle
@@ -401,7 +407,7 @@ void HJET::Draw(Option_t *what)
 	    }
 	    break;
     case 'B':	// Blue bunches
-	    HBUNCH[1]->Draw();
+	    HBUNCH[0]->Draw();
 //        for (j=0; j<360; j+=3) printf("%1.1d", Beam[0]->measuredFillPatternM[j]);
 //        printf("\n");
 	    break;
@@ -522,7 +528,7 @@ void HJET::Draw(Option_t *what)
 	    delete hist;
 	    break;
     case 'Y':	// yellow bunches
-	    HBUNCH[0]->Draw();
+	    HBUNCH[1]->Draw();
 //        for (j=0; j<360; j+=3) printf("%1.1d", Beam[1]->measuredFillPatternM[j]);
 //        printf("\n");
 	    break;
@@ -537,7 +543,7 @@ void HJET::ShowStatistics(void)
 	    printf("The startup. No beam data record yet. %d records so far.\n", RecNum);
     } else {
 	    printf("Fill:%d: %d records, Events: total = %d, Good Yellow = %d, Blue = %d.\n", 
-	        Beam[0]->fillNumberM, RecNum, EventCounter, (int)HBUNCH[0]->GetEntries(), (int)HBUNCH[1]->GetEntries());
+	        Beam[0]->fillNumberM, RecNum, EventCounter, (int)HBUNCH[1]->GetEntries(), (int)HBUNCH[0]->GetEntries());
     }
 }
 
@@ -580,7 +586,7 @@ void HJET::PrintRawAsym(void)
     abval = - abval;	// we measure recoiled partice
     rval = abval/ajval;
     rerr = rval*sqrt((aberr/abval)*(aberr/abval) + (ajerr/ajval)*(ajerr/ajval));
-    printf("Yellow beam: A_jet = %7.4f ± %6.4f,  A_beam = %7.4f ± %6.4f,  beam/jet = %7.3f ± %6.3f\n",
+    printf("Yellow beam: A_jet = %7.4f +- %6.4f,  A_beam = %7.4f +- %6.4f,  beam/jet = %7.3f +- %6.3f\n",
 	ajval, ajerr, abval, aberr, rval, rerr);
 // Copy to save for later...	
 	yjval = ajval;
@@ -590,9 +596,9 @@ void HJET::PrintRawAsym(void)
 	yval = rval;
 	yerr = rerr;
 	
-    printf("         A_jet_acc = %7.4f ± %6.4f, A_beam_acc = %7.4f ± %6.4f\n",
+    printf("         A_jet_acc = %7.4f +- %6.4f, A_beam_acc = %7.4f +- %6.4f\n",
 	bjval, bjerr, bbval, bberr); 
-    printf("         A_jet_lum = %7.4f ± %6.4f, A_beam_lum = %7.4f ± %6.4f\n",
+    printf("         A_jet_lum = %7.4f +- %6.4f, A_beam_lum = %7.4f +- %6.4f\n",
 	cjval, cjerr, cbval, cberr);
     ndnleft = HE[8]->GetEntries();
     ndnright = HE[9]->GetEntries();
@@ -611,11 +617,11 @@ void HJET::PrintRawAsym(void)
     abval = - abval;	// we measure recoiled partice
     rval = abval/ajval;
     rerr = rval*sqrt((aberr/abval)*(aberr/abval) + (ajerr/ajval)*(ajerr/ajval));
-    printf("  Blue beam: A_jet = %7.4f ± %6.4f,  A_beam = %7.4f ± %6.4f,  beam/jet = %7.3f ± %6.3f\n",
+    printf("  Blue beam: A_jet = %7.4f +- %6.4f,  A_beam = %7.4f +- %6.4f,  beam/jet = %7.3f +- %6.3f\n",
 	ajval, ajerr, abval, aberr, rval, rerr);
-    printf("         A_jet_acc = %7.4f ± %6.4f, A_beam_acc = %7.4f ± %6.4f\n",
+    printf("         A_jet_acc = %7.4f +- %6.4f, A_beam_acc = %7.4f +- %6.4f\n",
 	bjval, bjerr, bbval, bberr); 
-    printf("         A_jet_lum = %7.4f ± %6.4f, A_beam_lum = %7.4f ± %6.4f\n",
+    printf("         A_jet_lum = %7.4f +- %6.4f, A_beam_lum = %7.4f +- %6.4f\n",
 	cjval, cjerr, cbval, cberr);
 	
 // If this is a DAQ job, write some results to a temporary file.
@@ -624,7 +630,7 @@ void HJET::PrintRawAsym(void)
      sprintf(strB,".%s",strA);
      fsummary = fopen(strB,"w");
      fprintf(fsummary,"%8d %8d %7.4f %6.4f %7.4f %6.4f %7.3f %6.3f %7.4f %6.4f %7.4f %6.4f %7.3f %6.3f\n", 
-        (int)HBUNCH[0]->GetEntries(), (int)HBUNCH[1]->GetEntries(), yjval, yjerr, ybval, yberr, yval, yerr, ajval, ajerr, abval, aberr, rval, rerr);
+        (int)HBUNCH[1]->GetEntries(), (int)HBUNCH[0]->GetEntries(), yjval, yjerr, ybval, yberr, yval, yerr, ajval, ajerr, abval, aberr, rval, rerr);
      fclose(fsummary);
     }
 }
@@ -859,7 +865,8 @@ TH2F *HJET::CreateHistANDet(int det)
 TH1F *HJET::CreateHistC(int chan)
 {
     TH1F *h;
-    char strs[10], strl[100];
+    char strs[10]
+, strl[100];
     
     sprintf(strs, "HADC%d", chan+1);
     sprintf(strl, "ADC Events Si%d  (%s.%d)", chan+1, DetName(chan), Chan2Strip(chan)+1);
@@ -921,8 +928,9 @@ void HJET::FillEvent()
 	        HM[NTEvent->chan]->Fill(NTEvent->rmass);
 
         if (HMM[NTEvent->chan] == NULL) HMM[NTEvent->chan] = CreateHistMM(NTEvent->chan);
-	    if (CutTOF->Cut(NTEvent->tof) && CutEkin->Cut(NTEvent->ekin) && CutRawAmpl->Cut(NTEvent->ampl) 
-	        && CutRmass->Cut(NTEvent->rmass)) HMM[NTEvent->chan]->Fill(NTEvent->mmass2);
+//	    if (CutTOF->Cut(NTEvent->tof) && CutEkin->Cut(NTEvent->ekin) && CutRawAmpl->Cut(NTEvent->ampl) 
+//	        && CutRmass->Cut(NTEvent->rmass)) HMM[NTEvent->chan]->Fill(NTEvent->mmass2);
+	    if (CutRawAmpl->Cut(NTEvent->ampl) && CutRmass->Cut(NTEvent->rmass)) HMM[NTEvent->chan]->Fill(NTEvent->mmass2);
 
         if (HADC[NTEvent->chan] == NULL) HADC[NTEvent->chan] = CreateHistC(NTEvent->chan);
         HADC[NTEvent->chan]->Fill(NTEvent->ampl);
@@ -931,15 +939,18 @@ void HJET::FillEvent()
 	    HATDET[det]->Fill(NTEvent->ekin, NTEvent->tof);
 
         if (HANDET[det] == NULL) HANDET[det] = CreateHistANDet(det);
-	    if (CutTOF->Cut(NTEvent->tof) && CutEkin->Cut(NTEvent->ekin) && CutRawAmpl->Cut(NTEvent->ampl) && 
-	        CutRmass->Cut(NTEvent->rmass) && CutMmass->Cut(NTEvent->mmass2)) HANDET[det]->Fill(NTEvent->angle, NTEvent->ekin);
+//	    if (CutTOF->Cut(NTEvent->tof) && CutEkin->Cut(NTEvent->ekin) && CutRawAmpl->Cut(NTEvent->ampl) && 
+//	        CutRmass->Cut(NTEvent->rmass) && CutMmass->Cut(NTEvent->mmass2)) HANDET[det]->Fill(NTEvent->angle, NTEvent->ekin);
+//          Remove extra cuts 01.02.15
+	    if (CutTOF->Cut(NTEvent->tof) && CutRawAmpl->Cut(NTEvent->ampl) && CutRmass->Cut(NTEvent->rmass)) HANDET[det]->Fill(NTEvent->angle, NTEvent->ekin);
 
-	    if (CutTOF->Cut(NTEvent->tof) && CutEkin->Cut(NTEvent->ekin) && CutRawAmpl->Cut(NTEvent->ampl) && CutRmass->Cut(NTEvent->rmass) ) {
+	    if (CutTOF->Cut(NTEvent->tof) && CutEkin->Cut(NTEvent->ekin) && CutRawAmpl->Cut(NTEvent->ampl) && CutRmass->Cut(NTEvent->rmass) 
+            && CutMmass->Cut(NTEvent->mmass2)) {
 	        HSTRIP[Chan2Ring(NTEvent->chan)]->Fill(NTEvent->chan);		// Yellow or blue strips
 		    HSTRIP[2]->Fill(NTEvent->chan);		// Both yellow and blue strips
-	        HBUNCH[indet/8]->Fill(NTEvent->bunch);
+	        HBUNCH[Chan2Ring(NTEvent->chan)]->Fill(NTEvent->bunch);
 	        if (NTEvent->bpol != 0 && NTEvent->jpol != 0) {
-		        i = 8 * Chan2Ring(NTEvent->chan);
+		        i = Chan2Ring(NTEvent->chan) ? 0 : 8;   // blue=0/yellow=8
 		        k = Chan2LR(NTEvent->chan);
 		        j = (NTEvent->jpol > 0) ? 2 : 0;
 		        HE[i+j+k]->Fill(NTEvent->ekin);
@@ -1097,9 +1108,9 @@ void HJET::ProcessEvent(int chan, longWaveStruct *data)
     }    
     if (Chan2Ring(chan)) {	// yellow pattern
 	    NTEvent->bunch = (NTEvent->bunch + BUNCHCORR) % 120;
-	    NTEvent->bpol = (Beam[0] == NULL) ? 0 : Beam[0]->polarizationFillPatternS[3*NTEvent->bunch];
-    } else {			// blue pattern
 	    NTEvent->bpol = (Beam[1] == NULL) ? 0 : Beam[1]->polarizationFillPatternS[3*NTEvent->bunch];
+    } else {			// blue pattern
+	    NTEvent->bpol = (Beam[0] == NULL) ? 0 : Beam[0]->polarizationFillPatternS[3*NTEvent->bunch];
     }
 }
 
@@ -1216,7 +1227,7 @@ void *DataThreadFun(void *arg)
 //	BEAM data - we shall take beam polarization pattern from here
 	    case REC_BEAMADO:
 	        k = 0;
-	        if (rec->header.type & REC_BLUE) k = 1;
+	        if (rec->header.type & REC_YELLOW) k = 1;
 	        hjet->Beam[k] = (beamDataStruct *) malloc(rec->header.len - sizeof(recordHeaderStruct));
 	        if (hjet->Beam[k] == NULL) {
 		        printf("\nHJET-FATAL : No memory.\n");
@@ -1226,7 +1237,8 @@ void *DataThreadFun(void *arg)
 		        return NULL;
 	        }
 	        memcpy(hjet->Beam[k], rec->data, rec->header.len - sizeof(recordHeaderStruct));
-	        if (k == 0) {
+            hjet->Canvas = (TCanvas *) gROOT->FindObject("cvHJET");
+	        if (k == 0 && hjet->Canvas) {
 		        str = (char *) malloc(strlen(hjet->Canvas->GetTitle())+20);
 		        if (str != NULL) {
 		            sprintf(str, "%s Fill=%d", hjet->Canvas->GetTitle(), hjet->Beam[0]->fillNumberM);
