@@ -33,7 +33,8 @@
 #define SI1Z		1.085		// 1st strip from flange center, cm
 #define STPERDET	12		    // strips per detector
 #define EMAX4HIST   8000.0     // keV
-#define MAXDETZ     (SI1Z + (STPERDET-1)*SIPITCH)
+#define MAXDETZ     (SI1Z + (STPERDET - 0.5)*SIPITCH)
+#define MINDETZ     (SI1Z - SIPITCH/2)
 
 typedef struct {
     int chan;			// Channel number
@@ -89,6 +90,7 @@ private:
     TH1F  *CreateHistC(int chan);	// Create ADC histogram for a strip
     TH2F  *CreateHistATDet(int det);	// Create Ekin-TOF histogram for the whole detector
     TH2F  *CreateHistANDet(int det);	// Create Angle-Ekin histogram for the whole detector
+    void DrawSpinPattern(int ring, double max);     // Draw spin fill pattern for blue(0)/yellow(1) rings
     int RecRead(void *buf, size_t len);	// Read one record
     Bool_t HandleTimer(TTimer *timer);	// Handle timer events
 //	Geometry functions (from channel number)

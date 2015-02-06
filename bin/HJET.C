@@ -339,6 +339,24 @@ void HJET::Open(char *fname)
     DataThread->Run();
 }
 
+// Draw spin fill pattern for blue(0)/yellow(1) rings
+// Red = + / Green = -
+void HJET::DrawSpinPattern(int ring, double max)
+{
+    TH1F *h;
+    int i;
+
+    h = new TH1F("hpt", "hpt", 120, 0, 120);
+    for (i=0; i<120; i++) if (Beam[ring]->polarizationFillPatternS[3*i] > 0) h->Fill(i, max);
+    h->SetFillColor(kRed);
+    h->DrawCopy("same");
+    h->Reset();
+    for (i=0; i<120; i++) if (Beam[ring]->polarizationFillPatternS[3*i] < 0) h->Fill(i, max);
+    h->SetFillColor(kGreen);
+    h->DrawCopy("same");
+    delete h;
+}
+
 void DrawDummy(Option_t *what)
 {
     TH1F *hist;
@@ -408,6 +426,7 @@ void HJET::Draw(Option_t *what)
 	    break;
     case 'B':	// Blue bunches
 	    HBUNCH[0]->Draw();
+        DrawSpinPattern(0, 0.03*(1 + HBUNCH[0]->GetMaximum()));
 //        for (j=0; j<360; j+=3) printf("%1.1d", Beam[0]->measuredFillPatternM[j]);
 //        printf("\n");
 	    break;
@@ -529,6 +548,7 @@ void HJET::Draw(Option_t *what)
 	    break;
     case 'Y':	// yellow bunches
 	    HBUNCH[1]->Draw();
+        DrawSpinPattern(1, 0.03*(1 + HBUNCH[1]->GetMaximum()));
 //        for (j=0; j<360; j+=3) printf("%1.1d", Beam[1]->measuredFillPatternM[j]);
 //        printf("\n");
 	    break;
@@ -846,14 +866,12 @@ TH2F *HJET::CreateHistANDet(int det)
 {
     TH2F *h;
     char strs[10], strl[100];
-    float angmax;
     
     sprintf(strs, "HANDET%d", det+1);
     sprintf(strl, "Hydrogen jet Energy versus angle Det%d (%s)", det+1, Geometry[det].name);
     // angmax = 3.78/Config->TOFLength;
     // h = new TH2F(strs, strl, 30, 0, angmax, 50, 0, 6000);
-    angmax = MAXDETZ / Config->chan[0].TOFLength;
-    h = new TH2F(strs, strl, 30, 0, angmax, 50, 0, EMAX4HIST);
+    h = new TH2F(strs, strl, STPERDET, MINDETZ / Config->chan[0].TOFLength, MAXDETZ / Config->chan[0].TOFLength, 30, 0, EMAX4HIST);
     h->GetXaxis()->SetTitle("rad");
     h->GetYaxis()->SetTitle("E_{kin}, keV");
     h->SetFillColor(4);

@@ -262,9 +262,8 @@ int main(int argc, char **argv)
       fprintf(LogFile, "RHICPOL-WARN : No CDEV environment found.\n");
       fprintf(LogFile, "               Run may be unusable. Try -g to suppress this message.\n");
       polData.statusS |= WARN_INT;
-   } else {
-      cdevCnsInit();      
    }
+   if (gUseCdev) cdevCnsInit();
 
    rhicpol_process_options();
    if (gMeasType == kMEASTYPE_UNKNOWN)

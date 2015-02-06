@@ -19,7 +19,6 @@
 	return
 	end
 
-
 c
 	program rhic2hbook
 	common/pawc/pawc(8000000)
@@ -183,8 +182,6 @@ c Make that if no '-c' option given but n-tuple requested than all channels go t
 	    enddo
 	endif
 
-	
-
 c Hook for test 90-degree detectors in yel1 and blu2 (run 2010/2011)
 c	if ((device(13:16).eq.'yel1').or.(device(13:16).eq.'blu2')) then
 c	    i90OK = 0
@@ -277,7 +274,6 @@ c   	    print *, 'After readandfill (nsubrun<0) isubr = ',isubr
 	print *,'The end of RHIC2HBOOK.'
 	stop
 	end
-
 
 c book channel histograms. i >= 1
 	subroutine mybook(i)
@@ -442,7 +438,6 @@ c
 	enddo
 	return
 	end
-
 
 c
 	subroutine process(i90OK, polName, detMask)
@@ -1159,9 +1154,10 @@ c
     	icnt = icnt + 1
 c
 	end
-
-
-
+c
+c   Average analyzing power from Larry Trueman's fit 2004
+c   We use 24-GeV version below 50 GeV and 100 GeV above
+c
 	subroutine AnaPow(polName)
 
 	character*256 polName
@@ -1239,21 +1235,6 @@ c
      +   0.00893914, 0.00806877, 0.00725722, 0.00649782, 0.00578491,
      +   0.00511384, 0.00448062, 0.00388186, 0.00331461, 0.00277642/
 
-* scale for 250 GeV A_N = 1/0.959 = 1.043, P = 0.959 * P
-* scale for 255 GeV A_N = see offline results
-
-	if (polName(13:16).eq.'blu1') then
-	   scale250 = 1./1.016
-	elseif (polName(13:16).eq.'yel1') then
-	   scale250 = 1./1.073
-	elseif (polName(13:16).eq.'blu2') then
-	   scale250 = 1./1.197
-	elseif (polName(13:16).eq.'yel2') then
-	   scale250 = 1./0.994
-	else
-	   scale250 = 1.
-	endif
-
 	Emin = 22.5
 	Emax = 1172.2
 	DeltaE = (Emax - Emin)/25.
@@ -1270,20 +1251,45 @@ c
 	    s = s + Y(i)
             if (beamEnergyS.lt.50.0) then 
               sa = sa + Y(i)*anth(j)
-            elseif (beamEnergyS.lt.150.0) then 
-              sa = sa + Y(i)*anth100(j)
             else
-              sa = sa + Y(i)*anth100(j)*scale250
+              sa = sa + Y(i)*anth100(j)
             endif
 	enddo
 
 C	20% error
-	analyzingPowerS = sa / s
+	analyzingPowerS = sa * GetRenorm(polName) / s
 	analyzingPowerErrorS = 0.2 * analyzingPowerS
 	
 	print *, 'Average analyzing power from L.Trueman''s fit=', analyzingPowerS
 	
 	end
+c
+c   Analyzing power correction based on HJET normalization
+c   We read it from file $CONFDIR/polName.normalization
+c
+	Function GetRenorm(polName)
+
+	character*256  polName
+        character*512  confDir
+        character*1024 fileName
+        real CORR
+c
+        CORR = 1
+        Call GetEnv('POLCONF', confDir)
+        fileName = confDir(1:len_trim(confDir))//
+     *      polName(1:len_trim(polName))//'.normalization'
+        open(unit=20, file=fileName, form='formatted', 
+     *          type='old', err=20)
+        read (20, *) CORR
+        close(20)
+        print *, 'Correction file:'//fileName(1:len_trim(fileName))
+c
+20      continue
+        print *, 'This run correction for '//
+     *         polName(1:len_trim(polName))//' is ', CORR
+        GetRenorm = CORR
+        return
+        end
 c
 c
 c
