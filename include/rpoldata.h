@@ -194,7 +194,7 @@ typedef struct {
     wcmDataStruct data;
 } recordWcmAdoStruct;
 
-
+#pragma pack(push,1)
 struct RecordWcm
 {
    RecordHeaderStruct header;
@@ -209,7 +209,7 @@ struct RecordWcm
    RecordWcm& operator=(const RecordWcm &rec);
    void Print();
 };
-
+#pragma pack(pop)
 
 typedef struct {
     recordHeaderStruct header;
