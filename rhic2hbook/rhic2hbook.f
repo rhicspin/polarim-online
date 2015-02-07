@@ -1276,8 +1276,9 @@ c
 c
         CORR = 1
         Call GetEnv('POLCONF', confDir)
-        fileName = confDir(1:len_trim(confDir))//
+        fileName = confDir(1:len_trim(confDir))//'/'//
      *      polName(1:len_trim(polName))//'.normalization'
+c        print *, 'Correction file:'//fileName(1:len_trim(fileName))
         open(unit=20, file=fileName, form='formatted', 
      *          type='old', err=20)
         read (20, *) CORR
