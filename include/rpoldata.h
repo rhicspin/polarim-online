@@ -55,7 +55,12 @@
 #define REC_JET             0x00080000 // or'ed with the type and ring
 #define REC_120BUNCH        0x00008000 // or'ed with the mask where applicable
 #define REC_FROMMEMORY      0x00040000 // or'ed with the mask where applicable
-
+#define REC_HJET_GEOM   0x00000601      // HJet Geometry Config,   AP 02/05/15
+#define REC_HJET_VME    0x00000602      // HJet VME Crate Config,  AP 02/05/15
+#define REC_HJET_FADC   0x00000603      // HJet FADC Config,       AP 02/05/15
+#define REC_HJET_BLOCK  0x00000604      // HJet FADC Data Block,   AP 02/05/15
+#define REC_HJET_ACAL   0x00000605      // HJet FADC Data Block,   AP 02/05/15
+#define REC_HJET_DCAL   0x00000606      // HJet FADC Data Block,   AP 02/05/15
 
 enum EMeasType {kMEASTYPE_UNKNOWN     = 0x00000000,
                 kMEASTYPE_UNDEF       = 0x11111111,

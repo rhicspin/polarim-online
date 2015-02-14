@@ -128,10 +128,12 @@ HJET::HJET(char *fname) : TNamed("HJET", "Hydrogen Jet Online Data")
     HBUNCH[0]->SetFillColor(kBlue);
     HBUNCH[0]->GetXaxis()->SetTitle("Blue bunch number");
     HBUNCH[0]->GetYaxis()->SetTitle("Number of events");
+    HBUNCH[0]->SetMinimum(0);
     HBUNCH[1] = new TH1F("HBUNCHY", "Good events per bunch crossing, YELLOW beam", 120, 0, 120);
     HBUNCH[1]->SetFillColor(kOrange-2);
     HBUNCH[1]->GetYaxis()->SetTitle("Number of events");
     HBUNCH[1]->GetXaxis()->SetTitle("Yellow bunch number");
+    HBUNCH[1]->SetMinimum(0);
     HE[0]  = new TH1D("HEYJNL", "Good events energy distribution, Yellow,  Jet negative,  left", 200, 0, EMAX4HIST);
     HE[1]  = new TH1D("HEYJNR", "Good events energy distribution, Yellow,  Jet negative, right", 200, 0, EMAX4HIST);
     HE[2]  = new TH1D("HEYJPL", "Good events energy distribution, Yellow,  Jet positive,  left", 200, 0, EMAX4HIST);
@@ -559,11 +561,15 @@ void HJET::Draw(Option_t *what)
 
 void HJET::ShowStatistics(void)
 {
+    int i;
     if (Beam[0] == NULL) {
 	    printf("The startup. No beam data record yet. %d records so far.\n", RecNum);
     } else {
 	    printf("Fill:%d: %d records, Events: total = %d, Good Yellow = %d, Blue = %d.\n", 
 	        Beam[0]->fillNumberM, RecNum, EventCounter, (int)HBUNCH[1]->GetEntries(), (int)HBUNCH[0]->GetEntries());
+        printf("Good events per detector: ");
+        for (i=0; i<8; i++) printf("%s=%8d ", DetName(12*i), (int)HSTRIP[2]->Integral(12*i-0.5, 12*i+11.5)); // HARDCODED GEOMETRY !!!
+        printf("\n");
     }
 }
 
