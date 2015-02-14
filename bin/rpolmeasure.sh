@@ -173,6 +173,14 @@ case $MODE in
             mysendpict plotData $PSFILE >> $ALOG 2>&1
         fi
         ;;
+    Alpha* )
+        # Alpha run
+	CNF=${POLCONF}/${POLARIM}.alpha0.ini
+	DATA=${DATADIR}/${RUN}.alpha0.data
+        $POLCMD $OPT -l $LOG -i $CNF -f ${DATA}.tmp -d $POLARIM -c "$MODE $POLARIM" >> $ERRLOG 2>&1 &
+        mywait
+        mv ${DATA}.tmp ${DATA}
+        ;;
     * )
         echo "FATAL: Unknown run mode=$MODE." >> $ERRLOG
         exit 127
