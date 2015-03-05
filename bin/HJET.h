@@ -124,6 +124,7 @@ public:
     HCut  *CutRmass;		// cut on the recoiled mass
     HCut  *CutMmass;		// cut on the missing mass
     float TimeCorr;		// some time correction
+    float angcorr;
 
     HJET(char *fname = NULL);	// Create analysis. Attach to file fname if fname != NULL
     ~HJET(void);		// Destruct analysis

@@ -178,6 +178,7 @@ HJET::HJET(char *fname) : TNamed("HJET", "Hydrogen Jet Online Data")
     CutMmass = new HCut(0.75, 1.0);		// GeV^2 - should be proton mass squared =0.880
 //    TimeCorr = 3.0;
     TimeCorr = 0.0;
+    angcorr = 0.0;  // magnetic field correction, cm*MeV/c
 
     signal(SIGTERM, signalHandler);
     signal(SIGINT,  signalHandler);
@@ -917,7 +918,7 @@ void HJET::FillEvent()
 {
     float c = 29.9792458;	// c, cm/ns
     float M = 0.938;	// proton mass, GeV
-    float angcorr = 9.0;// magnetic field correction, cm*MeV/c
+//    float angcorr = 9.0;// magnetic field correction, cm*MeV/c - now defined in the class
     float E;    // beam energy, GeV
     float beta; // Recoil v/c
     int det;
@@ -936,7 +937,8 @@ void HJET::FillEvent()
 //    printf("beta = %g, len = %g tof = %g\n", beta, Config->TOFLength, NTEvent->tof);
     NTEvent->rmass = 2.0E-6*NTEvent->ekin / (beta*beta);
     NTEvent->angle = StripZ(NTEvent->chan) / Config->chan[NTEvent->chan].TOFLength;
-    NTEvent->angle += ((Chan2IO(NTEvent->chan)) ? 1. : -1.)*angcorr/(sqrt(2*M*NTEvent->ekin)*Config->chan[NTEvent->chan].TOFLength);// magnetic field
+    NTEvent->angle += ((Chan2IO(NTEvent->chan)) ? 1. : -1.) * ((Chan2Ring(NTEvent->chan)) ? 1. : -1.) * 
+        angcorr/(sqrt(2*M*NTEvent->ekin)*Config->chan[NTEvent->chan].TOFLength);// magnetic field
 // approximation: not relativistic for recoiled
     NTEvent->mmass2 = M*M - 2.0E-6*(M+E)*NTEvent->ekin + 2*sqrt(E*E-M*M)*sqrt(2.0E-6*M*NTEvent->ekin)*fabs(sin(NTEvent->angle));
 

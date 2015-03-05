@@ -34,6 +34,7 @@
     bar->Show();
 //	Set parameters
     hjet->TimeCorr = 0.0;
+    hjet->angcorr = 0.0;
     hjet->CutQuality->Set(0., 5.0);		// like chi^2
     hjet->CutRawAmpl->Set(15., 240.0);		// raw ADC counts not to hit overflow
     hjet->CutTOF->Set(17., 70.0);		// ns
