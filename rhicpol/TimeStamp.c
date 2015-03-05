@@ -1,6 +1,6 @@
-char* UIAGSVersionDate = "Thu Mar  5 12:39:11 2015";
-char* versionDate = "Thu Mar  5 12:39:11 2015";
-char* versionDateStr = "date:=Thu Mar  5 12:39:11 2015";
+char* UIAGSVersionDate = "Thu Mar  5 16:14:17 2015";
+char* versionDate = "Thu Mar  5 16:14:17 2015";
+char* versionDateStr = "date:=Thu Mar  5 16:14:17 2015";
 char* clearcaseView = "/view/igor";
 char* clearcaseViewStr = "view:=/view/igor";
 char* clearcaseConfigSpec = "\nelement * CHECKEDOUT\nelement * /main/LATEST\n";

@@ -365,7 +365,7 @@ int readConfig(char * cfgname, int update)
          if ((buf = envz_get(ENVZC, ENVLENC, "ETCutW")))        SiConf[i].ETCutW           = strtod(buf, NULL);
          if ((buf = envz_get(ENVZC, ENVLENC, "IACutW")))        SiConf[i].IACutW           = strtod(buf, NULL);
          if ((buf = envz_get(ENVZC, ENVLENC, "TOFLength")))     SiConf[i].TOFLength        = strtod(buf, NULL);
-         if ((buf = envz_get(ENVZ, ENVLEN, "TrigEmin")))        SiConf[i].TrigMin          = strtod(buf, NULL);
+         if ((buf = envz_get(ENVZC, ENVLENC, "TrigEmin")))      SiConf[i].TrigMin          = strtod(buf, NULL);
          free(ENVZC);
       }
    }
