@@ -323,8 +323,9 @@ int readConfig(char * cfgname, int update)
       }
    }
 
-    DefSiConf.TrigMin = Conf.TrigMin;	// we need this for compatibility
-
+    DefSiConf.TrigMin   = Conf.TrigMin;	// we need this for compatibility
+    DefSiConf.TrigThreshold = Conf.TRG.split.TrigThreshold;
+    
    /* Individual channels */
    /* Another Numchannels directive makes new Si configuration !!! */
    if (!update || envz_get(ENVZ, ENVLEN, "NumChannels")) {
@@ -345,6 +346,7 @@ int readConfig(char * cfgname, int update)
          if ((buf = envz_get(ENVZ, ENVLEN, "IACutW")))    SiConf[i].IACutW           = strtod(buf, NULL);
          if ((buf = envz_get(ENVZ, ENVLEN, "TOFLength"))) SiConf[i].TOFLength        = strtod(buf, NULL);
          if ((buf = envz_get(ENVZ, ENVLEN, "TrigEmin")))  SiConf[i].TrigMin          = strtod(buf, NULL);
+         if ((buf = envz_get(ENVZ, ENVLEN, "TrigThreshold"))) SiConf[i].TrigThreshold = strtol(buf, NULL, 0);
       }
    }
 
@@ -366,6 +368,7 @@ int readConfig(char * cfgname, int update)
          if ((buf = envz_get(ENVZC, ENVLENC, "IACutW")))        SiConf[i].IACutW           = strtod(buf, NULL);
          if ((buf = envz_get(ENVZC, ENVLENC, "TOFLength")))     SiConf[i].TOFLength        = strtod(buf, NULL);
          if ((buf = envz_get(ENVZC, ENVLENC, "TrigEmin")))      SiConf[i].TrigMin          = strtod(buf, NULL);
+         if ((buf = envz_get(ENVZC, ENVLENC, "TrigThreshold"))) SiConf[i].TrigThreshold    = strtol(buf, NULL, 0);
          free(ENVZC);
       }
    }
@@ -585,15 +588,15 @@ int CheckConfig()
       }
       if (iDebug > 10) {
          fprintf(LogFile,
-                 " %3d %2d %2d %3d %3d %3d %4.0f %4.0f %5.1f %5.1f %5.1f %5.3f %5.1f %5.1f %5.1f %5.3f %5.0f\n",
+                 " %3d %2d %2d %3d %3d %3d %4.0f %4.0f %5.1f %5.1f %5.1f %5.3f %5.1f %5.1f %5.1f %5.3f %5.0f %3d\n",
                  i + 1, SiConf[i].CrateN, SiConf[i].CamacN, SiConf[i].VirtexN,
                  SiConf[i].Window.split.Beg, SiConf[i].Window.split.End,
                  (Conf.Emin - SiConf[i].edead) / SiConf[i].ecoef,
                  (Conf.Emax - SiConf[i].edead) / SiConf[i].ecoef,
                  SiConf[i].ETCutW, SiConf[i].IACutW,
                  SiConf[i].t0, SiConf[i].ecoef, SiConf[i].edead,
-                 SiConf[i].A0, SiConf[i].A1, SiConf[i].acoef, SiConf[i].TrigMin
-                );
+                 SiConf[i].A0, SiConf[i].A1, SiConf[i].acoef, SiConf[i].TrigMin,
+                 SiConf[i].TrigThreshold);
       }
 
       if ( SiConf[i].VirtexN != 0 &&
@@ -1151,6 +1154,7 @@ int initWFDs()
                      if (k < 0)   k = 0;
                      if (k > 255) k = 255;
 
+                     Conf.TRG.split.TrigThreshold = SiConf[nSi].TrigThreshold;
                      Conf.TRG.split.FineHistBeg = k;
 
                      CMC_Add2Chain(ch, CMC_CMDDATA | Conf.TRG.reg);     // set trigger
