@@ -6,7 +6,7 @@
 #	Should be sourced as ". polsetvar.sh" from bash script
 
 ME=`hostname`
-YEAR=2015
+YEAR=2017
 
 case $ME in
     acnlinf9.* ) POLRING="blue"    ;;
