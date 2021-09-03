@@ -1,1 +1,1 @@
-cmd_/home/polarim/cmcamac/cmcamac.ko := cp /home/polarim/cmcamac/cmcamac.ko.unsigned /home/polarim/cmcamac/cmcamac.ko
+cmd_/home/polarim/cmcamac/cmcamac.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/polarim/cmcamac/cmcamac.ko /home/polarim/cmcamac/cmcamac.o /home/polarim/cmcamac/cmcamac.mod.o

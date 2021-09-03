@@ -17,11 +17,12 @@
  */
 #include <linux/device.h>
 #include <linux/kernel.h>
-#include <linux/smp_lock.h>
+//#include <linux/smp_lock.h>
 #include <linux/errno.h>
 #include <linux/init.h>
 #include <linux/slab.h>
 #include <linux/module.h>
+#include <linux/mutex.h>
 #include <linux/kref.h>
 #include <asm/uaccess.h>
 #include <linux/usb.h>
@@ -71,6 +72,7 @@ MODULE_DEVICE_TABLE (usb, cmcamac_table);
 
 typedef enum {CMC_NONE = 0, CMC_READY, CMC_BUSY} CMC_STATE;
 static CMC_STATE cmcamac_minor_table[CMCAMAC_MAX_MINORS];	/* table of occupied minors	*/
+struct mutex cmcamac_lock;
 
 /* Structure to hold all of our device specific stuff */
 struct usb_cmcamac {
@@ -111,7 +113,7 @@ static ssize_t cmcamac_send(struct usb_cmcamac *dev, void *buf, size_t count)
 			      min(dev->bulk_out_size, count),
 			      &cnt, CMCTMO);
 	if (retval) {
-		err("%s - failed writing, error %d", __FUNCTION__, retval);
+		pr_err("%s - failed writing, error %d", __FUNCTION__, retval);
 		return retval;
 	}
 
@@ -160,7 +162,7 @@ AGAIN:
 	retval = cmcamac_send(dev, &sndbuf, sizeof(sndbuf));
 	if (retval < 0) return retval;
 	if (retval != sizeof(sndbuf)) {
-		err("Unexpected error writing to controller.");
+		pr_err("Unexpected error writing to controller.");
 		retval = -ECOMM;
 		goto RESET;
 	}
@@ -168,7 +170,7 @@ AGAIN:
 	retval = cmcamac_send(dev, &sndbuf, sizeof(sndbuf));
 	if (retval < 0) return retval;
 	if (retval != sizeof(sndbuf)) {
-		err("Unexpected error writing to controller.");
+		pr_err("Unexpected error writing to controller.");
 		retval = -ECOMM;
 		goto RESET;
 	}
@@ -180,13 +182,13 @@ AGAIN:
 		if (retval < 0) {
 			ecnt++;
 			if (ecnt > 5) {
-				err("Read error %d.", retval);
+				pr_err("Read error %d.", retval);
 				goto RESET;
 			}
 		}	
 	}
 	if (i == MAXREADS) {
-		err("Too many reads required to empty controller.");
+		pr_err("Too many reads required to empty controller.");
 		retval = -ECOMM;
 		goto RESET;
 	}
@@ -194,7 +196,7 @@ AGAIN:
 	retval = cmcamac_send(dev, &sndbuf, sizeof(sndbuf));
 	if (retval < 0) return retval;
 	if (retval != sizeof(sndbuf)) {
-		err("Unexpected error writing to controller.");
+		pr_err("Unexpected error writing to controller.");
 		retval = -ECOMM;
 		goto RESET;
 	}
@@ -202,7 +204,7 @@ AGAIN:
 	retval = cmcamac_receive(dev, &buf, sizeof(buf));
 	if (retval < 0) return retval;
 	if (retval != sizeof(int)) {
-		err("Unexpected error reading from controller. Retval = %d.", retval);
+		pr_err("Unexpected error reading from controller. Retval = %d.", retval);
 		retval = -ECOMM;
 		goto RESET;
 	}
@@ -212,7 +214,7 @@ AGAIN:
 /*		Do hard reset				*/
 RESET:
 	if (reseted > 5) {
-	    err("Fatal too many attempts to reset controller.");
+	    pr_err("Fatal too many attempts to reset controller.");
 	    return retval;
 	}
 	info("Unable to read crate number -> doing hard reset.");
@@ -247,27 +249,27 @@ static int cmcamac_open(struct inode *inode, struct file *file)
 
 	subminor = iminor(inode);
 
-	lock_kernel();
+	mutex_lock(&cmcamac_lock);	// lock_kernel();
 	switch(cmcamac_minor_table[subminor - USB_CMCAMAC_MINOR_BASE]) {
 	case CMC_NONE:
-		unlock_kernel();
+		mutex_unlock(&cmcamac_lock);	// unlock_kernel();
 		retval = -ENODEV;
 		break;
 	case CMC_BUSY:
-		unlock_kernel();
-		err("Only one process can use CMCAMAC crate #%d.", subminor - USB_CMCAMAC_MINOR_BASE);
+		mutex_unlock(&cmcamac_lock);	// unlock_kernel();
+		pr_err("Only one process can use CMCAMAC crate #%d.", subminor - USB_CMCAMAC_MINOR_BASE);
 		retval = -EBUSY;
 		break;
 	case CMC_READY:
 		cmcamac_minor_table[subminor - USB_CMCAMAC_MINOR_BASE] = CMC_BUSY;
-		unlock_kernel();
+		mutex_unlock(&cmcamac_lock);	// unlock_kernel();
 		break;
 	}
 	if (retval != 0) goto exit;
 	
 	interface = usb_find_interface(&cmcamac_driver, subminor);
 	if (!interface) {
-		err ("%s - error, can't find device for minor %d",
+		pr_err ("%s - error, can't find device for minor %d",
 		     __FUNCTION__, subminor);
 		cmcamac_minor_table[subminor - USB_CMCAMAC_MINOR_BASE] = CMC_NONE;
 		retval = -ENODEV;
@@ -283,13 +285,13 @@ static int cmcamac_open(struct inode *inode, struct file *file)
 	/* Check if this is really a controller one asks for and flush buffers */
 	i = cmcamac_getnumber(dev);
 	if (i < 0) {
-		err("Unable to read crate number. May be crate is offline.");
+		pr_err("Unable to read crate number. May be crate is offline.");
 		cmcamac_minor_table[subminor - USB_CMCAMAC_MINOR_BASE] = CMC_NONE;
 		retval = i;
 		goto exit;
 	}
 	if (i + USB_CMCAMAC_MINOR_BASE != subminor) {
-		err("Crate number unexpectedly changed from %d to %d", subminor - USB_CMCAMAC_MINOR_BASE, i);
+		pr_err("Crate number unexpectedly changed from %d to %d", subminor - USB_CMCAMAC_MINOR_BASE, i);
 		cmcamac_minor_table[subminor - USB_CMCAMAC_MINOR_BASE] = CMC_NONE;
 		retval = -ENODEV;
 		goto exit;
@@ -315,10 +317,10 @@ static int cmcamac_release(struct inode *inode, struct file *file)
 		return -ENODEV;
 
 	subminor = iminor(inode);
-	lock_kernel();
+	mutex_lock(&cmcamac_lock);	// lock_kernel();
 	if (cmcamac_minor_table[subminor - USB_CMCAMAC_MINOR_BASE] == CMC_BUSY)
 	    cmcamac_minor_table[subminor - USB_CMCAMAC_MINOR_BASE] = CMC_READY;
-	unlock_kernel();
+	mutex_unlock(&cmcamac_lock);	// unlock_kernel();
 	/* decrement the count on our device */
 	kref_put(&dev->kref, cmcamac_delete);
 	return 0;
@@ -345,7 +347,7 @@ static ssize_t cmcamac_read(struct file *file, char *buffer, size_t count, loff_
 			      dev->bulk_in_size,
 			      &l, CMCTMO);
 		if (retval) {
-			err("CMCAMAC read error %d.", retval);
+			pr_err("CMCAMAC read error %d.", retval);
 			return retval;
 		}
 
@@ -356,7 +358,7 @@ static ssize_t cmcamac_read(struct file *file, char *buffer, size_t count, loff_
 		rcnt += l;
 		if (l != dev->bulk_in_size) return rcnt;
 	}
-	err("Too many reads required to empty controller.");
+	pr_err("Too many reads required to empty controller.");
 	return -EFAULT;	
 }
 
@@ -385,7 +387,7 @@ static ssize_t cmcamac_write(struct file *file, const char *user_buffer, size_t 
 			      dev->bulk_out_buffer,
 			      l, &l, CMCTMO);
 		if (retval) {
-			err("%s - failed writing, error %d", __FUNCTION__, retval);
+			pr_err("%s - failed writing, error %d", __FUNCTION__, retval);
 			return retval;
 		}
 	}
@@ -393,12 +395,12 @@ static ssize_t cmcamac_write(struct file *file, const char *user_buffer, size_t 
 
 }
 
-static int cmcamac_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
+static long cmcamac_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
 	struct usb_cmcamac *dev;
 	int cnt;
 	int data = 0;
-	int retval = -ENOIOCTLCMD;
+	long retval = -ENOIOCTLCMD;
 
 	dev = (struct usb_cmcamac *)file->private_data;
 	switch (cmd) {
@@ -426,7 +428,7 @@ static struct file_operations cmcamac_fops = {
 	.write =	cmcamac_write,
 	.open =		cmcamac_open,
 	.release =	cmcamac_release,
-	.ioctl = 	cmcamac_ioctl,
+	.unlocked_ioctl = cmcamac_ioctl,
 };
 
 /* 
@@ -453,7 +455,7 @@ static int cmcamac_probe(struct usb_interface *interface, const struct usb_devic
 	/* allocate memory for our device state and initialize it */
 	dev = kmalloc(sizeof(*dev), GFP_KERNEL);
 	if (dev == NULL) {
-		err("Out of memory");
+		pr_err("Out of memory");
 		goto error;
 	}
 	memset(dev, 0x00, sizeof(*dev));
@@ -478,7 +480,7 @@ static int cmcamac_probe(struct usb_interface *interface, const struct usb_devic
 			dev->bulk_in_endpointAddr = endpoint->bEndpointAddress;
 			dev->bulk_in_buffer = kmalloc(buffer_size, GFP_KERNEL);
 			if (!dev->bulk_in_buffer) {
-		    		err("Could not allocate bulk_in_buffer");
+		    		pr_err("Could not allocate bulk_in_buffer");
 				goto error;
 			}
 		}
@@ -492,7 +494,7 @@ static int cmcamac_probe(struct usb_interface *interface, const struct usb_devic
 			dev->bulk_out_endpointAddr = endpoint->bEndpointAddress;
 			dev->bulk_out_buffer = kmalloc(buffer_size, GFP_KERNEL);
 			if (!dev->bulk_out_buffer) {
-				err("Could not allocate bulk_out_buffer");
+				pr_err("Could not allocate bulk_out_buffer");
 				goto error;
 			}
 		}
@@ -515,7 +517,7 @@ static int cmcamac_probe(struct usb_interface *interface, const struct usb_devic
 		
 	}
 	if (!(dev->bulk_in_endpointAddr && dev->bulk_out_endpointAddr)) {
-		err("Could not find both bulk-in and bulk-out endpoints");
+		pr_err("Could not find both bulk-in and bulk-out endpoints");
 		goto error;
 	}
 
@@ -527,13 +529,13 @@ static int cmcamac_probe(struct usb_interface *interface, const struct usb_devic
 	    i = cmcamac_getnumber(dev);	// Let's try again. Otherwise we always fail at power on.
 	}
 	if (i < 0) {
-		err("Unable to read crate number. May be crate is offline.");
+		pr_err("Unable to read crate number. May be crate is offline.");
 		retval = i;
 		goto error;
 	}
 
 	if (cmcamac_minor_table[i] != CMC_NONE) {
-		err("We already have controller with this number (%d).", i);
+		pr_err("We already have controller with this number (%d).", i);
 		retval = -EINVAL;
 		goto error;
 	}
@@ -549,7 +551,7 @@ static int cmcamac_probe(struct usb_interface *interface, const struct usb_devic
 	retval = usb_register_dev(interface, &cmcamac_class);
 	if (retval) {
 		/* something prevented us from registering this driver */
-		err("Not able to get a minor for this device.");
+		pr_err("Not able to get a minor for this device.");
 		usb_set_intfdata(interface, NULL);
 		goto error;
 	}
@@ -573,7 +575,7 @@ static void cmcamac_disconnect(struct usb_interface *interface)
 	int minor = interface->minor;
 
 	/* prevent cmcamac_open() from racing cmcamac_disconnect() */
-	lock_kernel();
+	mutex_lock(&cmcamac_lock);	// lock_kernel();
 
 	dev = usb_get_intfdata(interface);
 	usb_set_intfdata(interface, NULL);
@@ -585,7 +587,7 @@ static void cmcamac_disconnect(struct usb_interface *interface)
 	usb_deregister_dev(interface, &cmcamac_class);
 	cmcamac_minor_table[minor - USB_CMCAMAC_MINOR_BASE] = CMC_NONE;
 	
-	unlock_kernel();
+	mutex_unlock(&cmcamac_lock);	// unlock_kernel();
 
 	/* decrement our usage count */
 	kref_put(&dev->kref, cmcamac_delete);
@@ -605,11 +607,12 @@ static int __init usb_cmcamac_init(void)
 {
 	int result;
 
+	mutex_init(&cmcamac_lock);
 	memset(cmcamac_minor_table, 0, sizeof(cmcamac_minor_table));
 	/* register this driver with the USB subsystem */
 	result = usb_register(&cmcamac_driver);
 	if (result)
-		err("usb_register failed. Error number %d", result);
+		pr_err("usb_register failed. Error number %d", result);
 
 	return result;
 }
