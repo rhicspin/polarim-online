@@ -1,1 +1,1 @@
-cmd_/home/cfsd/alekseev/proj/cnipol/online/cmcamac/cmcamac.ko := cp /home/cfsd/alekseev/proj/cnipol/online/cmcamac/cmcamac.ko.unsigned /home/cfsd/alekseev/proj/cnipol/online/cmcamac/cmcamac.ko
+cmd_/home/polarim/cmcamac/cmcamac.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/polarim/cmcamac/cmcamac.ko /home/polarim/cmcamac/cmcamac.o /home/polarim/cmcamac/cmcamac.mod.o

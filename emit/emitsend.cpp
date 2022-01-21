@@ -7,6 +7,7 @@
 #include <signal.h>
 #include <fcntl.h>
 #include <sys/types.h>
+#include <cdevCns/cdevCns.hxx>
 #include "rhicpol.h"
 #include "rpoldata.h"
 #include "emitdefn.h"
@@ -18,6 +19,7 @@ void sendemit(char *devName) {
     int irc;
     cdevData data;
 
+    cdevCnsInit();      
     cdevDevice & pol = cdevDevice::attachRef(devName);
     
     irc = 0;

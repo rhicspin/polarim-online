@@ -6,7 +6,7 @@
 #	Should be sourced as ". polsetvar.sh" from bash script
 
 ME=`hostname`
-YEAR=2015
+YEAR=2017
 
 case $ME in
     acnlinf9.* ) POLRING="blue"    ;;
@@ -17,8 +17,8 @@ case $ME in
 esac
 
 POLARIM=/home/polarim
-POLBIN=$POLARIM/polarim/bin
-POLCONF=$POLARIM/polarim/config
-POLSTORE=$POLARIM/$POLRING/$YEAR
+POLBIN=$POLARIM/bin
+POLCONF=$POLARIM/config
+POLSTORE=/home/$POLRING/$YEAR
 
 export POLRING POLARIM POLBIN POLSTORE POLCONF

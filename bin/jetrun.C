@@ -12,7 +12,6 @@
     bar->AddButton("Recoiled Mass", "hjet->DrawSet(\"R1\");", "Draw recoiled mass histograms.");
     bar->AddButton("Missing Mass", "hjet->DrawSet(\"M1\");", "Draw missing mass squared histograms.");
     bar->AddButton("ATDET", "hjet->DrawSet(\"D1\");", "Draw Ekin-TOF histograms for whole detectotrs.");
-    bar->AddButton("ATDET Y/B", "hjet->DrawSet(\"F1\");", "Draw Ekin-TOF histograms for half detectotrs.");
     bar->AddButton("APOS", "hjet->DrawSet(\"A1\");", "Draw Ekin-angle histograms.");
     bar->AddButton("Yellow", "hjet->DrawSet(\"Y1\");", "Draw Yellow good event bunch distribution.");
     bar->AddButton("Blue", "hjet->DrawSet(\"B1\");", "Draw Blue good event bunch distribution.");
@@ -34,7 +33,10 @@
     bar->AddButton("Exit", "hjet->SetFile(); gApplication->Terminate();", "Exit from root.");
     bar->Show();
 //	Set parameters
-    hjet->TimeCorr = 3.0;
+    hjet->TimeCorr = 0.0;
+    hjet->angcorr = 0.0;
+    hjet->BlueTilt = 0.0048;
+    hjet->YellowTilt = -0.0038;
     hjet->CutQuality->Set(0., 5.0);		// like chi^2
     hjet->CutRawAmpl->Set(15., 240.0);		// raw ADC counts not to hit overflow
     hjet->CutTOF->Set(17., 70.0);		// ns

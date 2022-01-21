@@ -55,7 +55,12 @@
 #define REC_JET             0x00080000 // or'ed with the type and ring
 #define REC_120BUNCH        0x00008000 // or'ed with the mask where applicable
 #define REC_FROMMEMORY      0x00040000 // or'ed with the mask where applicable
-
+#define REC_HJET_GEOM   0x00000601      // HJet Geometry Config,   AP 02/05/15
+#define REC_HJET_VME    0x00000602      // HJet VME Crate Config,  AP 02/05/15
+#define REC_HJET_FADC   0x00000603      // HJet FADC Config,       AP 02/05/15
+#define REC_HJET_BLOCK  0x00000604      // HJet FADC Data Block,   AP 02/05/15
+#define REC_HJET_ACAL   0x00000605      // HJet FADC Data Block,   AP 02/05/15
+#define REC_HJET_DCAL   0x00000606      // HJet FADC Data Block,   AP 02/05/15
 
 enum EMeasType {kMEASTYPE_UNKNOWN     = 0x00000000,
                 kMEASTYPE_UNDEF       = 0x11111111,
@@ -67,7 +72,8 @@ enum EMeasType {kMEASTYPE_UNKNOWN     = 0x00000000,
                 kMEASTYPE_EMIT_SCAN   = 0x00000010,
                 kMEASTYPE_TARGET_SCAN = 0x00000020,
                 kMEASTYPE_PROFILE_T   = 0x00000040,  // profile by time
-                kMEASTYPE_PROFILE_E   = 0x00000080}; // profile events
+                kMEASTYPE_PROFILE_E   = 0x00000080,  // profile events
+                kMEASTYPE_HJET        = 0x00000100}; // HJET
 
 
 struct RecordHeaderStruct
@@ -193,7 +199,7 @@ typedef struct {
     wcmDataStruct data;
 } recordWcmAdoStruct;
 
-
+#pragma pack(push,1)
 struct RecordWcm
 {
    RecordHeaderStruct header;
@@ -208,7 +214,7 @@ struct RecordWcm
    RecordWcm& operator=(const RecordWcm &rec);
    void Print();
 };
-
+#pragma pack(pop)
 
 typedef struct {
     recordHeaderStruct header;

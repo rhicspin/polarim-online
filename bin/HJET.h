@@ -6,6 +6,8 @@
 #ifndef HJET_H
 #define HJET_H
 
+#define _FILE_OFFSET_BITS 64
+
 #include <stdio.h>
 #include <TNamed.h>
 #include <TThread.h>
@@ -16,19 +18,23 @@
 #include <TH2F.h>
 #include <TFile.h>
 #include <TTimer.h>
-//#include "rhicpol.h"
-//#include "rpoldata.h"
-#include "rhicpol_old.h"
-#include "rpoldata_old.h"
+#include "../include/rhicpol.h"
+#include "../include/rpoldata.h"
 #include "HCut.h"
 
 #define MAXWAVEFORMS	100
 #define MAXSICHAN	100
 #define MAXQUEUE	100
 #define LINEPOINTS	6
-#define DETECTORS	6
-#define BUNCHCORR	40 //RUN6 80, RUN8 40 Hiromi Feb. 25, 2008
+#define DETECTORS	8		    // number of detectors
+#define BUNCHCORR	80 		    // RUN6 80, RUN8 40 Hiromi Feb. 25, 2008
 #define LARGE_VALUE	(1.0E50)
+#define SIPITCH		0.375		// pitch, cm
+#define SI1Z		1.085		// 1st strip from flange center, cm
+#define STPERDET	12		    // strips per detector
+#define EMAX4HIST   8000.0     // keV
+#define MAXDETZ     (SI1Z + (STPERDET - 0.5)*SIPITCH)
+#define MINDETZ     (SI1Z - SIPITCH/2)
 
 typedef struct {
     int chan;			// Channel number
@@ -53,13 +59,13 @@ private:
     FILE *DataFile;		// file we are processing
     TThread *DataThread;	// data drocessing thread
     configRhicDataStruct *Config;	// configuration
-    beamDataStruct *Beam[2];	// beam data for both beams
+    beamDataStruct *Beam[2];	// beam data for both beams    
     int JetPol;			// current jet polarization
     int StopThread;		// flag to stop data processing thread
     int RecNum;			// current record number
     int EventCounter;		// current event counter
     TCanvas *Canvas;		// our window
-	TCanvas *CanvYB;			// for Y/B stacked plot
+//	TCanvas *CanvYB;			// for Y/B stacked plot
     TFile *RootFile;		// file to write output n-tuple.
     EventStruct *Event[MAXWAVEFORMS];	// Waveforms to be shown
     EventStruct *NTEvent;	// event to be saved in n-tuple.
@@ -83,11 +89,18 @@ private:
     TH1F  *CreateHistMM(int chan);	// Create missing mass histogram for a strip
     TH1F  *CreateHistC(int chan);	// Create ADC histogram for a strip
     TH2F  *CreateHistATDet(int det);	// Create Ekin-TOF histogram for the whole detector
-    TH2F  *CreateHistATYB(int k, int det);	// Create Ekin-TOF histogram for each half detector
     TH2F  *CreateHistANDet(int det);	// Create Angle-Ekin histogram for the whole detector
+    void DrawSpinPattern(int ring, double max);     // Draw spin fill pattern for blue(0)/yellow(1) rings
     int RecRead(void *buf, size_t len);	// Read one record
     Bool_t HandleTimer(TTimer *timer);	// Handle timer events
-
+//	Geometry functions (from channel number)
+    int Chan2Det(int num); 	// translate channel number to detector number
+    int Chan2Strip(int num);	// translate channel number to strip number
+    float StripZ(int num);	// get strip position along the beam from channel number
+    const char *DetName(int num);	// translate channel number to detector name
+    int Chan2Ring(int num);	// translate channel number to ring
+    int Chan2IO(int num);	// translate channel number to inner/outer
+    int Chan2LR(int num);   // translate channel number to left/right
 public:
     jetPositionStruct JetPosition;	// jet and beam positions
 //	Histograms etc
@@ -98,7 +111,7 @@ public:
     TH1F  *HMM[MAXSICHAN];	// missing mass
     TH1F  *HADC[MAXSICHAN]; // ADC histogram 
     TH2F  *HATDET[DETECTORS];	// time versus amplitude histogram per detector
-    TH2F  *HATDYB[2][DETECTORS];	// time versus amplitude histogram per detector half
+//    TH2F  *HATDYB[2][DETECTORS];	// time versus amplitude histogram per detector half
     TH2F  *HANDET[DETECTORS];	// amplitude versus position per detector
     TH1F  *HSTRIP[3];		// good events per strip
     TH1F  *HBUNCH[2];		// good events per bunch crossing yellow, blue
@@ -111,6 +124,9 @@ public:
     HCut  *CutRmass;		// cut on the recoiled mass
     HCut  *CutMmass;		// cut on the missing mass
     float TimeCorr;		// some time correction
+    float angcorr;		// magnetic field correction
+    float BlueTilt;		// blue beam tilt, radian, positive - inside
+    float YellowTilt;		// Yellow beam tilt, radian, positive - inside
 
     HJET(char *fname = NULL);	// Create analysis. Attach to file fname if fname != NULL
     ~HJET(void);		// Destruct analysis
@@ -129,28 +145,28 @@ public:
 
 //	Inline functions
     int IsOK(void) {		// Check if there is datafile attached
-	return (DataFile != NULL);
+	    return (DataFile != NULL);
     };
     void Next(int incr = 1) {	// Draw next histogram
-	int i = strtol(&DrawWhat[1], NULL, 0);
-	sprintf(&DrawWhat[1], "%d", i+incr);
-	Draw(DrawWhat);
+	    int i = strtol(&DrawWhat[1], NULL, 0);
+	    sprintf(&DrawWhat[1], "%d", i+incr);
+	    Draw(DrawWhat);
     };
     void Prev(int decr = 1) {	// Draw previous histogram
-	int i = strtol(&DrawWhat[1], NULL, 0);
-	if (i>decr) sprintf(&DrawWhat[1], "%d", i-decr);
-	Draw(DrawWhat);
+	    int i = strtol(&DrawWhat[1], NULL, 0);
+	    if (i>decr) sprintf(&DrawWhat[1], "%d", i-decr);
+	    Draw(DrawWhat);
     };
     void DrawSet(char what) {	// Set what to draw
-	DrawWhat[0] = what;
-	Draw(DrawWhat);
+	    DrawWhat[0] = what;
+	    Draw(DrawWhat);
     };
     void DrawSet(char *what) {	// Set what to draw
-	strncpy(DrawWhat, what, sizeof(DrawWhat));
-	Draw(DrawWhat);
+	    strncpy(DrawWhat, what, sizeof(DrawWhat));
+	    Draw(DrawWhat);
     };
-    void SelectChannel(int chan) {	// Select channel to collect waveforms
-	SelectChan = chan; 
+        void SelectChannel(int chan) {	// Select channel to collect waveforms
+	    SelectChan = chan; 
     }
 
     ClassDef(HJET, 1);

@@ -199,7 +199,9 @@ typedef struct {
     float pede;         // pedestal of unknown nature (unitS ?)
     float C[5];         // nonlinear fit parameters: Ein = C[0] + C[1]*<ADC> + C[2]*<ADC>^2 ...
     float TOFLength;    // cm. 2010: we now have it different per detector !
-    int32_t reserved[9];
+    float TrigMin;	// per channel threshold. 05.03.2015
+    int   TrigThreshold; // per channel threshold for raw waveforms
+    int32_t reserved[7];
 } SiChanStruct;
 
 #define CALIB_CONSTANTS 13

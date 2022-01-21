@@ -48,8 +48,8 @@ void getJetPosition(void)
     cdevData data;
     int irc, i;
 
-    char rbpmName[8][20] = {"rbpm.b-g11-bhx", "rbpm.b-g12-bhx", "rbpm.b-g12-bvx",
-        "rbpm.b-g11-bvx", "rbpm.y-g11-bhx", "rbpm.y-g12-bhx", "rbpm.y-g11-bvx", "rbpm.y-g12-bvx"};
+    char rbpmName[8][20] = {"rbpm.b-g11-bhx", "rbpm.b-g12-bhx", "rbpm.b-g11-bvx",
+        "rbpm.b-g12-bvx", "rbpm.y-g11-bhx", "rbpm.y-g12-bhx", "rbpm.y-g11-bvx", "rbpm.y-g12-bvx"};
 
     if (!gUseCdev) return;
     irc = 0;

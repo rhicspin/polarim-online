@@ -1,6 +1,6 @@
 	subroutine Usage
 
-	print *, 'Usage: rhic2hbook [options] filein fileout'
+	print *, 'Usage: rhic2hbook [options] filein [fileout]'
 	print *, '       -s <device name> to send results to CDEV database'
 	print *, '       -n to write ntuples, otherwise only histograms'
 	print *, '       -r to write raw data ntuples'
@@ -18,7 +18,6 @@
 	
 	return
 	end
-
 
 c
 	program rhic2hbook
@@ -80,7 +79,7 @@ ccommon /
 	
 	do i = 1, NumArgs
 	    call getarg(i, str)
-
+	    
 	    if (ipar.eq.1) then
 c	ipar=1 - get device name
 		device = str
@@ -154,15 +153,19 @@ c	input filename
 c	output filename
 		fout = str
 	    else
+		print *, 'Unknown option '//str
 		call Usage
 		stop 	
 	    endif
 	enddo
 
 	if (fin.eq.'?') then
+	    print *, 'No input file'
 	    call Usage
 	    stop
 	endif	
+
+	if (isend.ne.0) call cdevinit();
 
 	if (fout.eq.'?') fout = fin(1:len_trim(fin)) // '.hbook'
 
@@ -271,7 +274,6 @@ c   	    print *, 'After readandfill (nsubrun<0) isubr = ',isubr
 	print *,'The end of RHIC2HBOOK.'
 	stop
 	end
-
 
 c book channel histograms. i >= 1
 	subroutine mybook(i)
@@ -436,7 +438,6 @@ c
 	enddo
 	return
 	end
-
 
 c
 	subroutine process(i90OK, polName, detMask)
@@ -812,6 +813,11 @@ c Bunch per bunch polarizations - given bunch versus sum of all
      ,			assy45, eassy45)
 		write(str, *) 'Bunch', i
 		print 100, str, 2*assx90, 2*eassx90, 2*assx45, 2*eassx45, 2*assy45, 2*eassy45
+c	01.02.2015 - moved to sqrt asymmetries here
+		bunchAsymXS(3*i-2) = 2*assx45
+		bunchAsymErrorXS(3*i-2) = 2*eassx45
+		bunchAsymYS(3*i-2) = 2*assy45
+		bunchAsymErrorYS(3*i-2) = 2*eassy45
 	    endif
 	enddo	
 
@@ -848,13 +854,14 @@ c We suppress 90-degree test detectors if requested
 	    call lssqrbasym(bassX, bassY, ebassX, ebassY)
 	    do i=1,120
 		write(str, *) 'Bunch', i
-		bunchAsymXS(3*i-2) = bassX(i)
-		bunchAsymErrorXS(3*i-2) = ebassX(i)
+c	01.02.2015 - moved to sqrt asymmetries
+c		bunchAsymXS(3*i-2) = bassX(i)
+c		bunchAsymErrorXS(3*i-2) = ebassX(i)
 		print 100, str, bassX(i), ebassX(i)
 
 		write(str, *) 'Bunch', i
-		bunchAsymYS(3*i-2) = bassY(i)
-		bunchAsymErrorYS(3*i-2) = ebassY(i)
+c		bunchAsymYS(3*i-2) = bassY(i)
+c		bunchAsymErrorYS(3*i-2) = ebassY(i)
 		print 100, str, bassY(i), ebassY(i)
 	    enddo
 	endif
@@ -1147,9 +1154,10 @@ c
     	icnt = icnt + 1
 c
 	end
-
-
-
+c
+c   Average analyzing power from Larry Trueman's fit 2004
+c   We use 24-GeV version below 50 GeV and 100 GeV above
+c
 	subroutine AnaPow(polName)
 
 	character*256 polName
@@ -1227,21 +1235,6 @@ c
      +   0.00893914, 0.00806877, 0.00725722, 0.00649782, 0.00578491,
      +   0.00511384, 0.00448062, 0.00388186, 0.00331461, 0.00277642/
 
-* scale for 250 GeV A_N = 1/0.959 = 1.043, P = 0.959 * P
-* scale for 255 GeV A_N = see offline results
-
-	if (polName(13:16).eq.'blu1') then
-	   scale250 = 1./1.016
-	elseif (polName(13:16).eq.'yel1') then
-	   scale250 = 1./1.073
-	elseif (polName(13:16).eq.'blu2') then
-	   scale250 = 1./1.197
-	elseif (polName(13:16).eq.'yel2') then
-	   scale250 = 1./0.994
-	else
-	   scale250 = 1.
-	endif
-
 	Emin = 22.5
 	Emax = 1172.2
 	DeltaE = (Emax - Emin)/25.
@@ -1258,20 +1251,46 @@ c
 	    s = s + Y(i)
             if (beamEnergyS.lt.50.0) then 
               sa = sa + Y(i)*anth(j)
-            elseif (beamEnergyS.lt.150.0) then 
-              sa = sa + Y(i)*anth100(j)
             else
-              sa = sa + Y(i)*anth100(j)*scale250
+              sa = sa + Y(i)*anth100(j)
             endif
 	enddo
 
 C	20% error
-	analyzingPowerS = sa / s
+	analyzingPowerS = sa * GetRenorm(polName) / s
 	analyzingPowerErrorS = 0.2 * analyzingPowerS
 	
 	print *, 'Average analyzing power from L.Trueman''s fit=', analyzingPowerS
 	
 	end
+c
+c   Analyzing power correction based on HJET normalization
+c   We read it from file $CONFDIR/polName.normalization
+c
+	Function GetRenorm(polName)
+
+	character*256  polName
+        character*512  confDir
+        character*1024 fileName
+        real CORR
+c
+        CORR = 1
+        Call GetEnv('POLCONF', confDir)
+        fileName = confDir(1:len_trim(confDir))//'/'//
+     *      polName(1:len_trim(polName))//'.normalization'
+c        print *, 'Correction file:'//fileName(1:len_trim(fileName))
+        open(unit=20, file=fileName, form='formatted', 
+     *          type='old', err=20)
+        read (20, *) CORR
+        close(20)
+        print *, 'Correction file:'//fileName(1:len_trim(fileName))
+c
+20      continue
+        print *, 'This run correction for '//
+     *         polName(1:len_trim(polName))//' is ', CORR
+        GetRenorm = CORR
+        return
+        end
 c
 c
 c
