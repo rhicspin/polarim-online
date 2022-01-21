@@ -242,11 +242,7 @@ int main(int argc, char **argv)
 
    t = time(NULL);
 
-
    fprintf(LogFile, ">>>>> %s Starting measurement for device=%s\n", cctime(&t), DeviceName);
-
-
-   if (iHistOnly) Conf.OnlyHist = 1;   // command line has priority
 
    // Zero structures first
    memset(&beamData,      0, sizeof(beamData));
@@ -309,6 +305,7 @@ int main(int argc, char **argv)
       polData.statusS |= (STATUS_ERROR | ERR_INT);
       polexit();
    }
+   if (iHistOnly) Conf.OnlyHist = 1;   // command line has priority
 
    // Get CDEV information
    if (gUseCdev)
