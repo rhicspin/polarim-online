@@ -1,18 +1,19 @@
+#!/usr/bin/sh
 #RUN=14802.016
 #RUN=14802.114
 #RUN=14802.207
 #RUN=14802.307
 RUN=$1
 
-POLDIR=/usr/local/polarim
-LOGDIR=${POLDIR}/log
+POLDIR=/home/polarim
+LOGDIR=/home/blue/2022/log
 #PSFILE=${LOGDIR}/${RUN}.ps
-HBOOKDIR=${POLDIR}/hbook
+HBOOKDIR=/home/blue/2022/hbook
 HBOOKFILE=${HBOOKDIR}/${RUN}.hbook
 BINDIR=${POLDIR}/bin
-#MACDIR=${BINDIR}/macro
+MACDIR=${BINDIR}
 
-MACDIR=/usr/local/cnipol_trunk/online/rhic2hbook
+#MACDIR=/usr/local/cnipol_trunk/online/rhic2hbook
 PSFILE=test_mypaw.ps
 
 $MACDIR/pvector.pl $RUN
@@ -23,5 +24,5 @@ $MACDIR/pvector.pl $RUN
 
 pawX11 -n -b $MACDIR/onliplot.kumac
 
-gv $PSFILE &
+#gv $PSFILE &
 

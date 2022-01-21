@@ -283,9 +283,14 @@ macro main
     COLOR_TABLE 9 1.0000 0.5409 0.0078 | goldenrod1
     COLOR_TABLE 10 0.6875 0.7656 0.8672 | light steel blue
     fill = $RSIGMA(int([run]))
-    glo/cre prun $RSIGMA(int(10*([run]-int([run]))))
+*   Igor Alekseev:    21.01.2022 Fix a bug of wrong polarimeter guess
+*    glo/cre prun $RSIGMA(int(10*([run]-int([run]))))
+    glo/cre runi $INDEX([run], '.')
+    glo/cre runii $SIGMA([runi]+1)
+    glo/cre prun $SUBSTRING([run], [runii], 1)
 
 * 2010: prun=0 - blue-1, 1 - blue-2; 2 - yellow-1, 3 - yellow-2
+* 201?: prun=0 - blue-1, 2 - blue-2; 1 - yellow-1, 3 - yellow-2
 
 * ********************************
 * asymmetry plots
