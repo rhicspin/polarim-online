@@ -353,7 +353,7 @@ static ssize_t cmcamac_read(struct file *file, char *buffer, size_t count, loff_
 
 		/* Copy the data to userspace */
 		if (count > rcnt && l > 0 &&  
-			copy_to_user(&buffer[rcnt], dev->bulk_in_buffer, min((size_t)l, count-rcnt))) 
+			raw_copy_to_user(&buffer[rcnt], dev->bulk_in_buffer, min((size_t)l, count-rcnt))) 
 				return -EFAULT;
 		rcnt += l;
 		if (l != dev->bulk_in_size) return rcnt;
@@ -376,7 +376,7 @@ static ssize_t cmcamac_write(struct file *file, const char *user_buffer, size_t 
 
 	for (wcnt = 0; wcnt < count; wcnt += l) {
 		l = min(dev->bulk_out_size, count-wcnt);
-		if (copy_from_user(dev->bulk_out_buffer, &user_buffer[wcnt], l)) {
+		if (raw_copy_from_user(dev->bulk_out_buffer, &user_buffer[wcnt], l)) {
 			retval = -EFAULT;
 			return retval;
 		}

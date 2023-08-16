@@ -1,2 +1,3 @@
-/home/polarim/cmcamac/cmcamac.ko
-/home/polarim/cmcamac/cmcamac.o
+/home/cfsd/alekseev/proj/polarim/cmcamac/cmcamac.ko
+/home/cfsd/alekseev/proj/polarim/cmcamac/cmcamac.o
+

@@ -1,1 +1,1 @@
-cmd_/home/polarim/cmcamac/cmcamac.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/polarim/cmcamac/cmcamac.ko /home/polarim/cmcamac/cmcamac.o /home/polarim/cmcamac/cmcamac.mod.o
+cmd_/home/cfsd/alekseev/proj/polarim/cmcamac/cmcamac.ko := ld -r -m elf_x86_64  -z max-page-size=0x200000 -T ./scripts/module-common.lds  --build-id  -o /home/cfsd/alekseev/proj/polarim/cmcamac/cmcamac.ko /home/cfsd/alekseev/proj/polarim/cmcamac/cmcamac.o /home/cfsd/alekseev/proj/polarim/cmcamac/cmcamac.mod.o ;  true
