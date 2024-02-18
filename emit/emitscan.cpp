@@ -9,6 +9,7 @@
     - Improved code readability
 */
 
+#define CDEV_HAS_64BIT_LONGS
 #define _FILE_OFFSET_BITS 64        // to handle >2Gb files
 #include <stdio.h>
 #include <stdlib.h>
@@ -240,7 +241,7 @@ int main(int argc, char **argv)
 
       if ((unsigned)rec.header.len > BSIZE * sizeof(int)) {
          poldat.statusS |= WARN_INT;
-         printf("EMIT-WARN : Very large record (%ld).\n", rec.header.len);
+         printf("EMIT-WARN : Very large record (%d).\n", rec.header.len);
          i = fseek(fin, rec.header.len - sizeof(recordHeaderStruct), SEEK_CUR);
          if (feof(fin)) break;
          if (i != 0) {
@@ -277,7 +278,7 @@ int main(int argc, char **argv)
             exit(-2);
          }
 
-         printf("EMIT-INFO : Begin of data set version=%ld for ", rec.begin.version);
+         printf("EMIT-INFO : Begin of data set version=%d for ", rec.begin.version);
          if (rec.header.type & REC_YELLOW) {
             printf("YELLOW");
             fitRing = 1;
@@ -321,7 +322,7 @@ int main(int argc, char **argv)
             i += sizeof(subheadStruct) + nRecEvt * sizeof(ATStruct);
 
             if (i > rec.header.len - sizeof(recordHeaderStruct)) {
-               printf("Broken record %ld (%ld bytes). Last subhead: siNum=%d  Events=%d\n", rec.header.num, rec.header.len, St + 1, nRecEvt);
+               printf("Broken record %d (%d bytes). Last subhead: siNum=%d  Events=%d\n", rec.header.num, rec.header.len, St + 1, nRecEvt);
                break;
             }
 
@@ -484,7 +485,7 @@ int main(int argc, char **argv)
           nStepCnt, vStepOrb[0], vStepOrb[nStepCnt - 1], midStepCnt);
 
    int *stepOrb = (int *) malloc( (lastOrb + 1) * sizeof(int) );
-   memset(stepOrb, 0, sizeof(stepOrb));
+   memset(stepOrb, 0, (lastOrb + 1) * sizeof(int));
 
    for (i = firstOrb; i < (unsigned) vStepOrb[midStepCnt]; i++) {
       for (j = 0; j <= midStepCnt; j++) {
@@ -552,7 +553,7 @@ int main(int argc, char **argv)
 
       if ((unsigned)rec.header.len > BSIZE * sizeof(int)) {
          poldat.statusS |= WARN_INT;
-         printf("EMIT-WARN : Very large record (%ld).\n", rec.header.len);
+         printf("EMIT-WARN : Very large record (%d).\n", rec.header.len);
          i = fseek(fin, rec.header.len - sizeof(recordHeaderStruct), SEEK_CUR);
          if (feof(fin)) break;
          if (i != 0) {
@@ -584,7 +585,7 @@ int main(int argc, char **argv)
             poldat.statusS |= (STATUS_ERROR | ERR_INT);
             exit(-2);
          }
-         printf("EMIT-INFO : Begin of data set version=%ld for ", rec.begin.version);
+         printf("EMIT-INFO : Begin of data set version=%d for ", rec.begin.version);
          if (rec.header.type & REC_YELLOW) {
             printf("YELLOW");
             fitRing = 1;
@@ -600,7 +601,7 @@ int main(int argc, char **argv)
          break;
 
       case REC_END:
-         printf("EMIT-INFO : End of data set at record %ld : %s\n", rec.header.num, rec.end.comment);
+         printf("EMIT-INFO : End of data set at record %d : %s\n", rec.header.num, rec.end.comment);
          break;
 
       case REC_POLADO:
@@ -666,7 +667,7 @@ int main(int argc, char **argv)
             i += sizeof(subheadStruct) + nRecEvt * sizeof(ATStruct);
 
             if (i > rec.header.len - sizeof(recordHeaderStruct)) {
-               printf("Broken record %ld (%ld bytes). Last subhead: siNum=%d  Events=%d\n", rec.header.num, rec.header.len, St + 1, nRecEvt);
+               printf("Broken record %d (%d bytes). Last subhead: siNum=%d  Events=%d\n", rec.header.num, rec.header.len, St + 1, nRecEvt);
                break;
             }
 
@@ -727,7 +728,7 @@ int main(int argc, char **argv)
          break;
 
       default:        // skip any unknown records
-         printf("Unknown record %8.8lX encountered in input data file\n", rec.header.type & REC_TYPEMASK);
+         printf("Unknown record %8.8X encountered in input data file\n", rec.header.type & REC_TYPEMASK);
          break;
       } // switch
    } // for(;;)...

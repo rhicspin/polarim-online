@@ -1,3 +1,4 @@
+#define CDEV_HAS_64BIT_LONGS
 #define _FILE_OFFSET_BITS 64	    // to handle >2Gb files
 #include "rcdev.h"
 #include <time.h>

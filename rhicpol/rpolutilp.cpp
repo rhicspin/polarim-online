@@ -359,7 +359,7 @@ void getCdevInfo()
          }
 
          memset(ival, 0, sizeof(ival));
-         sprintf(defName, "polarControlDefaults%s", &DeviceName[11]);
+         snprintf(defName, sizeof(defName), "polarControlDefaults%s", &DeviceName[11]);
          cdevDevice & def = cdevDevice::attachRef(defName);
          if (!DEVSEND(def, "get rampInterval", NULL, &data, LogFile, irc)) data.get("value", ival);
          if (ival[tgtId] < 0) ival[tgtId] = 2;  // just default

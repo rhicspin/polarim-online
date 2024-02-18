@@ -16,6 +16,8 @@
  *    -
  */
 
+#define CDEV_HAS_64BIT_LONGS
+
 #include <time.h>
 #include <errno.h>
 #include <unistd.h>

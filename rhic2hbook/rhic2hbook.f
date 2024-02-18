@@ -1279,8 +1279,8 @@ c
         fileName = confDir(1:len_trim(confDir))//'/'//
      *      polName(1:len_trim(polName))//'.normalization'
 c        print *, 'Correction file:'//fileName(1:len_trim(fileName))
-        open(unit=20, file=fileName, form='formatted', 
-     *          type='old', err=20)
+c        open(unit=20, file=fileName, form='FORMATTED', type='OLD', err=20)
+        open(unit=20, file=fileName, form='FORMATTED', err=20, status='OLD')
         read (20, *) CORR
         close(20)
         print *, 'Correction file:'//fileName(1:len_trim(fileName))

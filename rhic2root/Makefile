@@ -1,5 +1,8 @@
 CXXFLAGS = $(shell root-config --cflags) -pthread -I../include
 LOADLIBES = $(shell root-config --libs)
-LDFLAGS = -m32
+###LDFLAGS = -m32
+#LDFLAGS = -m64
+#LD = $(shell root-config --ld)
 
-rhic2root : rhic2root.o
+all : rhic2root
+

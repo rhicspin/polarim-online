@@ -781,7 +781,7 @@ int polWrite(recordHeaderStruct *header, long *data)
    int irc = fwrite(header, sizeof(recordHeaderStruct), 1, OutFile);
 
    if (irc != 1) {
-      fprintf(LogFile, "RHICPOL-FATAL : Writing output file error (header) rec=%8.8lX: %s.\n",
+      fprintf(LogFile, "RHICPOL-FATAL : Writing output file error (header) rec=%8.8X: %s.\n",
               header->type, strerror(errno));
       polData.statusS |= (STATUS_ERROR | ERR_INT);
       fclose(OutFile);
@@ -794,7 +794,7 @@ int polWrite(recordHeaderStruct *header, long *data)
    {
       irc = fwrite(data, header->len - sizeof(recordHeaderStruct), 1, OutFile);
       if (irc != 1) {
-         fprintf(LogFile, "RHICPOL-FATAL : Writing output file error (body) rec=%8.8lX: %s.\n",
+         fprintf(LogFile, "RHICPOL-FATAL : Writing output file error (body) rec=%8.8X: %s.\n",
                  header->type, strerror(errno));
          polData.statusS |= (STATUS_ERROR | ERR_INT);
          fclose(OutFile);
@@ -1452,9 +1452,9 @@ int checkChainResult(CMC_chain *ch, int cr)
    mask = CMC_CMASK + CMC_QMASK + CMC_XMASK;
    val = (cr << 28) + CMC_QMASK + CMC_XMASK;
    err = 0;
-   for (i = 0; i < ch->rptr; i++) if ((ch->rdata[i] & mask) != val) {
+   for (i = 0; (signed) i < ch->rptr; i++) if ((ch->rdata[i] & mask) != val) {
          err++;
-         if (iDebug > 200) fprintf(LogFile, "RHICPOL-ERROR : No Q/X/wrong crate number (%d) @%d: %8.8lX.\n",
+         if (iDebug > 200) fprintf(LogFile, "RHICPOL-ERROR : No Q/X/wrong crate number (%d) @%d: %8.8X.\n",
                                       cr, i, ch->rdata[i]);
       }
    return err;
@@ -1509,7 +1509,7 @@ int getNumberOfEvents(void)     // Read from WFD dedicated scalers
                      for (kk = 0; kk < 16; kk += 2) {
                         if ((ch->rdata[kk + k + ii] & 0xF0000) != kk * 0x10000 ||
                               (ch->rdata[kk + k + ii + 1] & 0xF0000) != (kk + 1) * 0x10000) {
-                           fprintf(LogFile, "\nRHICPOL-WARN: Wrong dedicated scalers readout at %d.%d.%d@%d: %8.8lX %8.8lX\n",
+                           fprintf(LogFile, "\nRHICPOL-WARN: Wrong dedicated scalers readout at %d.%d.%d@%d: %8.8X %8.8X\n",
                                    cr, i, j + 1, kk, ch->rdata[kk + k + ii], ch->rdata[kk + k + ii + 1]);
                         }
                         else {
@@ -1969,7 +1969,7 @@ void* readThread(void *arg)
                case REC_NONE:
                   if ((w & 0x3F3F) != (Conf.CSR.reg & 0x3F3F)) {
                      if (iDebug > 200) fprintf(LogFile,
-                                                  "RHICPOL-ERR : WFD %d.%d CSR %4.4X found @ %X (EXP: %4.4lX)\n",
+                                                  "RHICPOL-ERR : WFD %d.%d CSR %4.4X found @ %X (EXP: %4.4X)\n",
                                                   cr, i, w, 2 * j, Conf.CSR.reg);
                      err++;
                      continue;

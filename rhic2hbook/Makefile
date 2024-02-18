@@ -17,20 +17,26 @@
 ### rhic2hbook : rhic2hbook.o rdatautilp.o rdatautil.o
 ###	$(FC) $^ -Wno-globals -m32 -o $@ $(LIB_PATHS) -lpacklib -lkernlib -lmathlib -lcdev -lm -ldl -lstdc++ $(LIBS)
 
+CERNDIR = ../../cernlib_2006
+
 include /vobs/libs/makefiles/MakeStd.inc
 
 NAME = rhic2hbook
 
 USESOLIBS = yes
-INC = -I../include -I/usr/include/cernlib/2006/cfortran
-USER_FFLAGS = -m32
-USER_CXXFLAGS = $(shell root-config --cflags)
-LDFLAGS = -m32 -L/usr/lib/cernlib/2006-g77/lib $(shell root-config --libs)
+INC = -I../include -I$(CERNDIR)/include
+USER_FFLAGS = -m32 -ffixed-form -ffixed-line-length-none
+USER_CXXFLAGS = $(shell $(CERNDIR)/bin/root-config --cflags)
+LDFLAGS = -m32 -L$(CERNDIR)/lib $(shell $(CERNDIR)/bin/root-config --libs) -lstdc++
+##LDFLAGS = -L$(CERNDIR)/lib $(shell $(CERNDIR)/bin/root-config --libs)
 
 PROG1 = rhic2hbook
 SRCS1 = rhic2hbook.f rdatautilp.cpp rdatautil.cpp
 LIBS1 = cdevCns cdev includeCdev GenData rhicError Async setHist
-LD1 = g77
+#LD1 = g77
+LD1 = gfortran
+FC = gfortran
+FF = gfortran
 #SYSLIBS1 = packlib kernlib mathlib  gfortranbegin gfortran g2c
 SYSLIBS1 = packlib kernlib mathlib
 

@@ -2,6 +2,7 @@
 #define POLDATA_H
 
 #include <stdint.h>
+#include <string.h>
 
 #include "TBuffer.h"
 

@@ -4,14 +4,16 @@
 ### rpoldaemon: rpoldaemon.o globals.o rpoldata.o
 ### cnidaemon: cnidaemon.o globals.o rpoldata.o
 
+CERNDIR = ../../cernlib_2006
+
 include /vobs/libs/makefiles/MakeStd.inc
 
 NAME = rhicpol
 
 USESOLIBS = yes
 INC = -I../include
-USER_CXXFLAGS = $(shell root-config --cflags)
-LDFLAGS = $(shell root-config --libs)
+USER_CXXFLAGS = $(shell $(CERNDIR)/bin/root-config --cflags)
+LDFLAGS = $(shell $(CERNDIR)/bin/root-config --libs)
 
 PROG1 = rpoldaemon
 SRCS1 = rpoldaemon.cpp globals.cpp rpoldata.cpp
