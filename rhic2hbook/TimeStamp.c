@@ -1,6 +1,6 @@
-char* UIAGSVersionDate = "Вс 18 фев 2024 14:31:45";
-char* versionDate = "Вс 18 фев 2024 14:31:45";
-char* versionDateStr = "date:=Вс 18 фев 2024 14:31:45";
+char* UIAGSVersionDate = "Пт 23 фев 2024 17:27:41";
+char* versionDate = "Пт 23 фев 2024 17:27:41";
+char* versionDateStr = "date:=Пт 23 фев 2024 17:27:41";
 char* clearcaseView = "/view/igor";
 char* clearcaseViewStr = "view:=/view/igor";
 char* clearcaseConfigSpec = "\nelement * CHECKEDOUT\nelement * /main/CDEV_LATEST\nelement * /main/LATEST\n";

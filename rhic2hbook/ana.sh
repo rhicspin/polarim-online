@@ -22,6 +22,8 @@ DATA=${DATADIR}/${RUN}.data
 EMITCMD=$BINDIR/emitscan
 ANACMD=$BINDIR/rhic2hbook
 
+# Setting LD_LIBRARY_PATH for old 32 bit paw and root libraries
+export LD_LIBRARY_PATH=$POLDIR/lib:$LD_LIBRARY_PATH
 
 if [ -z "$POLARIM" ]; then
    if [ "${RUN:6:1}" = "0" ]; then
@@ -63,7 +65,7 @@ echo "Starting pvector.pl..." >> $ALOG
 $MACDIR/pvector.pl $RUN
 echo "Starting pawX11..." >> $ALOG
 export RUN LOGDIR PSFILE HBOOKFILE MACDIR       # no other way to pass arguments to kumac...
-pawX11 -n -b $MACDIR/onliplot.kumac >> $ALOG 2>&1
+$POLDIR/bin/pawX11 -n -b $MACDIR/onliplot.kumac >> $ALOG 2>&1
 #echo "Starting online_polar.pl..." >> $ALOG
 #$MACDIR/online_polar.pl $RUN
 echo "Starting sendpict..." >> $ALOG

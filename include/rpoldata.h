@@ -4,7 +4,12 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "TBuffer.h"
+//#include "TBuffer.h"
+class TBuffer;
+typedef int Int_t;
+typedef float Float_t;
+typedef double Double_t;
+typedef const char Option_t;
 
 #include "rhicpol.h"
 #include "static_assert.h"

@@ -30,6 +30,8 @@ umask 0002
 # this is return code of rhicpol after wait
 declare -i IRC
 
+# Setting LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=
 # Set directories etc
 export POLDIR=/usr/local/polarim
 export CNIPOL_DIR=/usr/local/cnipol_trunk
@@ -40,6 +42,9 @@ export LOGDIR=$POLDIR/log
 export HBOOKDIR=$POLDIR/hbook
 export MACDIR=$BINDIR/macro
 export ROOTDIR=$POLDIR/root
+
+# Setting LD_LIBRARY_PATH for old 32 bit paw and root libraries
+export LD_LIBRARY_PATH=$POLDIR/lib:$LD_LIBRARY_PATH
 
 POLCMD=$BINDIR/rhicpol
 ANACMD=$BINDIR/rhic2hbook
@@ -133,7 +138,7 @@ case $MODE in
             $MACDIR/pvector.pl $RUN
             echo "Starting pawX11..." >> $ALOG
             export RUN LOGDIR PSFILE HBOOKFILE MACDIR   # no other way to pass arguments to kumac...
-            pawX11 -n -b $MACDIR/onliplot.kumac >> $ALOG 2>&1
+            $POLDIR/bin/pawX11 -n -b $MACDIR/onliplot.kumac >> $ALOG 2>&1
             echo "Starting online_polar.pl..." >> $ALOG
             $MACDIR/online_polar.pl $RUN
             echo "Starting sendpict..." >> $ALOG
@@ -165,7 +170,7 @@ case $MODE in
         if [ $IRC -eq 0 ]; then # analyze data if the measurement was OK
             $ANACMD -l -s $POLARIM -N -1 $DATA $HBOOKFILE >> $ALOG 2>&1
             export RUN PSFILE HBOOKFILE POLARIM # no other way to pass arguments to kumac...
-            pawX11 -n -b $MACDIR/rampplot.kumac >> $ALOG 2>&1
+            $POLDIR/bin/pawX11 -n -b $MACDIR/rampplot.kumac >> $ALOG 2>&1
             echo "Starting sendpict..." >> $ALOG
             mysendpict plotData $PSFILE >> $ALOG 2>&1
         fi

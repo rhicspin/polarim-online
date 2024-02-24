@@ -22,7 +22,7 @@ export RUN LOGDIR PSFILE HBOOKFILE MACDIR # no other way to pass arguments to ku
 
 $MACDIR/pvector.pl $RUN
 
-pawX11 -n -b $MACDIR/onliplot.kumac
+$POLDIR/bin/pawX11 -n -b $MACDIR/onliplot.kumac
 
 #gv $PSFILE &
 

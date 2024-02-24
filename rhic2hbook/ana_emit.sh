@@ -24,6 +24,8 @@ DATA=${DATADIR}/${RUN}.data
 EMITCMD=$BINDIR/emitscan
 ANACMD=$BINDIR/rhic2hbook
 
+# Setting LD_LIBRARY_PATH for old 32 bit paw and root libraries
+export LD_LIBRARY_PATH=$POLDIR/lib:$LD_LIBRARY_PATH
 
 if [ -z "$POLARIM" ]; then
    if [ "${RUN:6:1}" = "0" ]; then

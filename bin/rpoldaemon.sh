@@ -9,4 +9,5 @@ case $POLRING in
     *      ) echo "Wrong ring !!!"; exit     ;;
 esac
 
+export LD_LIBRARY_PATH=$POLARIM/lib:$LD_LIBRARY_PATH
 ${POLBIN}/rpoldaemon -$RING -l ${LOGDIR}/rpoldaemon.log -r ${POLBIN}/rpolmeasure.sh 
